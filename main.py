@@ -16,5 +16,12 @@ if __name__ == "__main__":
 	running = True
 	while running:
 		for event in pygame.event.get():
+			# If the red cross in the upper right corner is clicked
 			if event.type == pygame.QUIT:
 				running = False
+
+		# Change the background color
+		screen.fill((0, 50, 0))
+
+		# Always update the display at the end of the loop
+		pygame.display.update()
