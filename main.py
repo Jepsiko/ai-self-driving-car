@@ -14,8 +14,8 @@ if __name__ == "__main__":
 	icon = pygame.image.load("taxi.png")
 	pygame.display.set_icon(icon)
 
-	# Taxi car
-	taxi = Car("car.png", 300, 300)
+	# Taxi taxi
+	taxi = Car("car.png", 400, 300)
 
 	# Game Loop
 	running = True
@@ -28,7 +28,7 @@ if __name__ == "__main__":
 		# Change the background color
 		screen.fill((0, 50, 0))
 
-		# Draw the car
+		# Draw the taxi
 		taxi.draw(screen)
 
 		# Always update the display at the end of the loop
