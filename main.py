@@ -7,6 +7,7 @@ if __name__ == "__main__":
 	# Create the screen
 	screen = pygame.display.set_mode((800, 640))
 
+	# Game Loop
 	running = True
 	while running:
 		for event in pygame.event.get():
