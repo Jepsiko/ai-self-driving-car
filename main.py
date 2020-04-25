@@ -87,10 +87,11 @@ if __name__ == "__main__":
 
 			if event.type == pygame.MOUSEBUTTONDOWN:
 
+				# Left clic
 				if event.button == 1:
-					if lineEditing:
 
-						# Line creation
+					# Line creation
+					if lineEditing:
 						mouseX, mouseY = pygame.mouse.get_pos()
 						for position in points:
 							if math.hypot(position[0] - mouseX, position[1] - mouseY) <= 40:
@@ -99,6 +100,7 @@ if __name__ == "__main__":
 								elif position != startingPoint and not crossing:
 									endingPoint = position
 
+				# Right clic
 				if event.button == 3:
 
 					# Point removing
@@ -227,7 +229,7 @@ if __name__ == "__main__":
 
 			# Draw the taxi
 			taxi.draw(screen)
-			if taxi.is_on_grass(screen):
+			if taxi.is_on_grass(screen, backgroundColor):
 				pass
 
 		# Always update the display at the end of the loop
