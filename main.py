@@ -39,13 +39,14 @@ def is_line_crossing(line1, line2):
 
 
 if __name__ == "__main__":
-	print("Press P to edit points, L to edit lines, F when you've finished and D for debug")
+	print("Press P to edit points, L to edit lines, F when you've finished, D for debug and ESC to quit")
 
 	# Initialize pygame
 	pygame.init()
 
 	# Create the screen
-	screen = pygame.display.set_mode((WIDTH, HEIGHT))
+	screen = pygame.display.set_mode((800, 600))
+	# screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN) #  For the final version
 
 	# Title and Icon
 	pygame.display.set_caption("Taxi Agent")
@@ -119,26 +120,31 @@ if __name__ == "__main__":
 			# If keyboard key is pressed
 			if event.type == pygame.KEYDOWN:
 
-				# Point editing mode
+				# "P" to enter Point editing mode
 				if event.key == pygame.K_p:
 					pointEditing = True
 					lineEditing = False
 
-				# Line editing mode
+				# "L" to enter Line editing mode
 				if event.key == pygame.K_l:
 					lineEditing = True
 					pointEditing = False
 
-				# Finished mode
+				# "F" to enter Finished mode
 				if event.key == pygame.K_f:
-					taxi.position[0], taxi.position[1] = points[0]
+					if len(points) > 0:
+						taxi.position[0], taxi.position[1] = points[0]
 
 					lineEditing = False
 					pointEditing = False
 
-				# Debug mode
+				# "D" to enter Debug mode
 				if event.key == pygame.K_d:
 					DEBUG = not DEBUG
+
+				# "ESC" to Quit
+				if event.key == pygame.K_ESCAPE:
+					running = False
 
 		# Change the background color
 		screen.fill((0, 50, 0))
@@ -159,6 +165,7 @@ if __name__ == "__main__":
 				if math.hypot(position[0] - mouseX, position[1] - mouseY) <= MIN_DIST_POINTS:
 					spaceAvailable = False
 
+			# If the mouse is in the window
 			if pygame.mouse.get_focused():
 				if spaceAvailable:
 					pygame.draw.circle(screen, (150, 150, 150), (mouseX, mouseY), 8)
