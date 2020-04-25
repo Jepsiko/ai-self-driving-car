@@ -1,6 +1,7 @@
 import pygame
 import math
 from Car import Car
+from Graph import Graph
 
 WIDTH = 1366
 HEIGHT = 768
@@ -70,6 +71,9 @@ if __name__ == "__main__":
 	roadColor = (100, 100, 100)
 	roadWidth = 50
 
+	# Graph creation
+	graph = None
+
 	# Game Loop
 	running = True
 	while running:
@@ -125,19 +129,22 @@ if __name__ == "__main__":
 				if event.key == pygame.K_p:
 					pointEditing = True
 					lineEditing = False
+					graph = None
 
 				# "L" to enter Line editing mode
 				if event.key == pygame.K_l:
 					lineEditing = True
 					pointEditing = False
+					graph = None
 
-				# "F" to enter Finished mode
+				# "F" to Finish editing
 				if event.key == pygame.K_f:
 					if len(points) > 0:
 						taxi.position[0], taxi.position[1] = points[0]
 
 					lineEditing = False
 					pointEditing = False
+					graph = Graph(points, lines)
 
 				# "D" to enter Debug mode
 				if event.key == pygame.K_d:
