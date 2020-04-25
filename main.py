@@ -35,6 +35,7 @@ def is_line_crossing(line1, line2):
 
 
 def create_reward_gates():
+	gatesWidth = roadWidth - 4
 	for i in range(len(lines)):
 		pos1, pos2 = lines[i]
 		x1, y1 = pos1
@@ -47,10 +48,10 @@ def create_reward_gates():
 		rewardGates.append([])
 		for j in range(spaceBetweenGates, int(length) - spaceBetweenGates, spaceBetweenGates):
 			pointMiddle = (x1 + j * math.cos(angle), y1 + j * math.sin(angle))
-			pointLeft = (int(pointMiddle[0] + roadWidth / 2 * math.cos(angle - math.pi / 2)),
-						 int(pointMiddle[1] + roadWidth / 2 * math.sin(angle - math.pi / 2)))
-			pointRight = (int(pointMiddle[0] + roadWidth / 2 * math.cos(angle + math.pi / 2)),
-						  int(pointMiddle[1] + roadWidth / 2 * math.sin(angle + math.pi / 2)))
+			pointLeft = (int(pointMiddle[0] + gatesWidth / 2 * math.cos(angle - math.pi / 2)),
+						 int(pointMiddle[1] + gatesWidth / 2 * math.sin(angle - math.pi / 2)))
+			pointRight = (int(pointMiddle[0] + gatesWidth / 2 * math.cos(angle + math.pi / 2)),
+						  int(pointMiddle[1] + gatesWidth / 2 * math.sin(angle + math.pi / 2)))
 			rewardGates[i].append((pointLeft, pointRight))
 
 
@@ -261,8 +262,7 @@ if __name__ == "__main__":
 				colorRewardGates = (255, 0, 0)
 			for road in rewardGates:
 				for line in road:
-					if DEBUG:
-						pygame.draw.line(screen, colorRewardGates, line[0], line[1], 2)
+					pygame.draw.line(screen, colorRewardGates, line[0], line[1], 2)
 
 			# Draw the taxi
 			taxi.draw(screen)
