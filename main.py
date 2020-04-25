@@ -66,6 +66,7 @@ if __name__ == "__main__":
 	lines = []
 
 	# Level design
+	backgroundColor = (20, 60, 20)
 	roadColor = (100, 100, 100)
 	roadWidth = 50
 
@@ -147,7 +148,7 @@ if __name__ == "__main__":
 					running = False
 
 		# Change the background color
-		screen.fill((0, 50, 0))
+		screen.fill(backgroundColor)
 
 		# Level editing GUI
 		mouseX, mouseY = pygame.mouse.get_pos()
