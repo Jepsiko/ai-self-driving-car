@@ -4,7 +4,7 @@ import math
 class Graph:
 
 	def __init__(self, points, lines):
-		self.pointNumber = {}
+		self.pointNumber = {}  # Assiociate each point with a number for the matrix
 		for i in range(len(points)):
 			self.pointNumber[points[i]] = i
 		self.adjacencyMatrix = [[math.inf for _ in points] for _ in points]
