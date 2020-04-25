@@ -5,6 +5,7 @@ from Car import Car
 WIDTH = 1366
 HEIGHT = 768
 MIN_DIST_POINTS = 150
+DEBUG = False
 
 
 def draw_line(screen, line, color, width):
@@ -27,13 +28,19 @@ def ccw(A, B, C):
 
 
 def is_line_crossing(line1, line2):
-	pos1, pos2 = line1
-	pos3, pos4 = line2
+	A, B = line1
+	C, D = line2
 
-	return ccw(pos1, pos3, pos4) != ccw(pos2, pos3, pos4) and ccw(pos1, pos2, pos3) != ccw(pos1, pos2, pos4)
+	# Prevent lines starting from the same point from being noticed as crossed lines
+	if A == C or A == D or B == C or B == D:
+		return False
+
+	return ccw(A, C, D) != ccw(B, C, D) and ccw(A, B, C) != ccw(A, B, D)
 
 
 if __name__ == "__main__":
+	print("Press P to edit points, L to edit lines, F when you've finished and D for debug")
+
 	# Initialize pygame
 	pygame.init()
 
@@ -46,7 +53,7 @@ if __name__ == "__main__":
 	pygame.display.set_icon(icon)
 
 	# Taxi taxi
-	taxi = Car("car.png", 400, 300)
+	taxi = Car("car.png", 0, 0)
 
 	# Level creation
 	pointEditing = True
@@ -56,6 +63,10 @@ if __name__ == "__main__":
 	crossing = False
 	points = []
 	lines = []
+
+	# Level design
+	roadColor = (100, 100, 100)
+	roadWidth = 50
 
 	# Game Loop
 	running = True
@@ -125,26 +136,30 @@ if __name__ == "__main__":
 					lineEditing = False
 					pointEditing = False
 
+				# Debug mode
+				if event.key == pygame.K_d:
+					DEBUG = not DEBUG
+
 		# Change the background color
 		screen.fill((0, 50, 0))
 
 		# Level editing GUI
 		mouseX, mouseY = pygame.mouse.get_pos()
 		if pointEditing:
+
+			spaceAvailable = True
+			for position in points:
+				radius = MIN_DIST_POINTS
+				transparent_circle = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
+				pygame.draw.circle(transparent_circle, (150, 150, 150, 50), (radius*2, radius*2), radius-2)
+				pygame.draw.circle(transparent_circle, (200, 200, 200, 50), (radius*2, radius*2), radius, 2)
+				screen.blit(transparent_circle, (position[0] - radius*2, position[1] - radius*2))
+				pygame.draw.circle(screen, (100, 150, 255), position, 10)
+
+				if math.hypot(position[0] - mouseX, position[1] - mouseY) <= MIN_DIST_POINTS:
+					spaceAvailable = False
+
 			if pygame.mouse.get_focused():
-
-				spaceAvailable = True
-				for position in points:
-					radius = MIN_DIST_POINTS
-					transparent_circle = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
-					pygame.draw.circle(transparent_circle, (150, 150, 150, 50), (radius*2, radius*2), radius-2)
-					pygame.draw.circle(transparent_circle, (200, 200, 200, 50), (radius*2, radius*2), radius, 2)
-					screen.blit(transparent_circle, (position[0] - radius*2, position[1] - radius*2))
-					pygame.draw.circle(screen, (100, 150, 255), position, 10)
-
-					if math.hypot(position[0] - mouseX, position[1] - mouseY) <= MIN_DIST_POINTS:
-						spaceAvailable = False
-
 				if spaceAvailable:
 					pygame.draw.circle(screen, (150, 150, 150), (mouseX, mouseY), 8)
 					pygame.draw.circle(screen, (200, 200, 200), (mouseX, mouseY), 10, 2)
@@ -158,7 +173,7 @@ if __name__ == "__main__":
 
 		elif lineEditing:
 			for position in points:
-				radius = 30
+				radius = int(roadWidth/2)
 				transparent_circle = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
 				pygame.draw.circle(transparent_circle, (150, 150, 150, 50), (radius, radius), radius-2)
 				pygame.draw.circle(transparent_circle, (200, 200, 200, 50), (radius, radius), radius, 2)
@@ -188,8 +203,6 @@ if __name__ == "__main__":
 
 		else:
 			# Draw the map
-			roadColor = (100, 100, 100)
-			roadWidth = 60
 			radius = int(roadWidth/2)
 			for position in points:
 				pygame.draw.circle(screen, roadColor, position, radius)
