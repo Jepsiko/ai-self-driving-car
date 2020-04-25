@@ -3,24 +3,19 @@ import math
 from Car import Car
 from Graph import Graph
 
-WIDTH = 1366
-HEIGHT = 768
-MIN_DIST_POINTS = 150
-DEBUG = False
-
 
 def draw_line(screen, line, color, width):
 	pos1, pos2 = line
 	x1, y1 = pos1
 	x2, y2 = pos2
 	length = math.hypot(x1 - x2, y1 - y2)
-	angle = math.acos((x2-x1)/length)
+	angle = math.acos((x2 - x1) / length)
 	if y2 < y1:
-		angle = math.pi*2 - angle
-	point1 = (x1 + int(width/2 * math.cos(angle+math.pi/2)), y1 + int(width/2 * math.sin(angle+math.pi/2)))
-	point2 = (x1 + int(width/2 * math.cos(angle-math.pi/2)), y1 + int(width/2 * math.sin(angle-math.pi/2)))
-	point3 = (x2 + int(width/2 * math.cos(angle-math.pi/2)), y2 + int(width/2 * math.sin(angle-math.pi/2)))
-	point4 = (x2 + int(width/2 * math.cos(angle+math.pi/2)), y2 + int(width/2 * math.sin(angle+math.pi/2)))
+		angle = math.pi * 2 - angle
+	point1 = (x1 + int(width / 2 * math.cos(angle + math.pi / 2)), y1 + int(width / 2 * math.sin(angle + math.pi / 2)))
+	point2 = (x1 + int(width / 2 * math.cos(angle - math.pi / 2)), y1 + int(width / 2 * math.sin(angle - math.pi / 2)))
+	point3 = (x2 + int(width / 2 * math.cos(angle - math.pi / 2)), y2 + int(width / 2 * math.sin(angle - math.pi / 2)))
+	point4 = (x2 + int(width / 2 * math.cos(angle + math.pi / 2)), y2 + int(width / 2 * math.sin(angle + math.pi / 2)))
 	pygame.draw.polygon(screen, color, [point1, point2, point3, point4])
 
 
@@ -39,15 +34,39 @@ def is_line_crossing(line1, line2):
 	return ccw(A, C, D) != ccw(B, C, D) and ccw(A, B, C) != ccw(A, B, D)
 
 
+def create_reward_gates():
+	for i in range(len(lines)):
+		pos1, pos2 = lines[i]
+		x1, y1 = pos1
+		x2, y2 = pos2
+		length = math.hypot(x1 - x2, y1 - y2)
+		angle = math.acos((x2 - x1) / length)
+		if y2 < y1:
+			angle = math.pi * 2 - angle
+
+		rewardGates.append([])
+		for j in range(spaceBetweenGates, int(length) - spaceBetweenGates, spaceBetweenGates):
+			pointMiddle = (x1 + j * math.cos(angle), y1 + j * math.sin(angle))
+			pointLeft = (int(pointMiddle[0] + roadWidth / 2 * math.cos(angle - math.pi / 2)),
+						 int(pointMiddle[1] + roadWidth / 2 * math.sin(angle - math.pi / 2)))
+			pointRight = (int(pointMiddle[0] + roadWidth / 2 * math.cos(angle + math.pi / 2)),
+						  int(pointMiddle[1] + roadWidth / 2 * math.sin(angle + math.pi / 2)))
+			rewardGates[i].append((pointLeft, pointRight))
+
+
 if __name__ == "__main__":
+	WIDTH = 1366
+	HEIGHT = 768
+	DEBUG = False
+
 	print("Press P to edit points, L to edit lines, F when you've finished, D for debug and ESC to quit")
 
 	# Initialize pygame
 	pygame.init()
 
 	# Create the screen
-	screen = pygame.display.set_mode((800, 600))
-	# screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN) #  For the final version
+	screen = pygame.display.set_mode((WIDTH, HEIGHT))
+	# screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.FULLSCREEN) #  For the final version
 
 	# Title and Icon
 	pygame.display.set_caption("Taxi Agent")
@@ -58,6 +77,7 @@ if __name__ == "__main__":
 	taxi = Car("car.png", 0, 0)
 
 	# Level creation
+	minimalDistancePoint = 150
 	pointEditing = True
 	lineEditing = False
 	startingPoint = None
@@ -70,6 +90,10 @@ if __name__ == "__main__":
 	backgroundColor = (20, 60, 20)
 	roadColor = (100, 100, 100)
 	roadWidth = 50
+
+	# Reward gates
+	rewardGates = []
+	spaceBetweenGates = 50
 
 	# Graph creation
 	graph = None
@@ -132,12 +156,14 @@ if __name__ == "__main__":
 					pointEditing = True
 					lineEditing = False
 					graph = None
+					rewardGates = []
 
 				# "L" to enter Line editing mode
 				if event.key == pygame.K_l:
 					lineEditing = True
 					pointEditing = False
 					graph = None
+					rewardGates = []
 
 				# "F" to Finish editing
 				if event.key == pygame.K_f:
@@ -147,6 +173,7 @@ if __name__ == "__main__":
 					lineEditing = False
 					pointEditing = False
 					graph = Graph(points, lines)
+					create_reward_gates()
 
 				# "D" to enter Debug mode
 				if event.key == pygame.K_d:
@@ -165,14 +192,14 @@ if __name__ == "__main__":
 
 			spaceAvailable = True
 			for position in points:
-				radius = MIN_DIST_POINTS
+				radius = minimalDistancePoint
 				transparent_circle = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
-				pygame.draw.circle(transparent_circle, (150, 150, 150, 50), (radius*2, radius*2), radius-2)
-				pygame.draw.circle(transparent_circle, (200, 200, 200, 50), (radius*2, radius*2), radius, 2)
-				screen.blit(transparent_circle, (position[0] - radius*2, position[1] - radius*2))
+				pygame.draw.circle(transparent_circle, (150, 150, 150, 50), (radius * 2, radius * 2), radius - 2)
+				pygame.draw.circle(transparent_circle, (200, 200, 200, 50), (radius * 2, radius * 2), radius, 2)
+				screen.blit(transparent_circle, (position[0] - radius * 2, position[1] - radius * 2))
 				pygame.draw.circle(screen, (100, 150, 255), position, 10)
 
-				if math.hypot(position[0] - mouseX, position[1] - mouseY) <= MIN_DIST_POINTS:
+				if math.hypot(position[0] - mouseX, position[1] - mouseY) <= minimalDistancePoint:
 					spaceAvailable = False
 
 			# If the mouse is in the window
@@ -190,9 +217,9 @@ if __name__ == "__main__":
 
 		elif lineEditing:
 			for position in points:
-				radius = int(roadWidth/2)
+				radius = int(roadWidth / 2)
 				transparent_circle = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
-				pygame.draw.circle(transparent_circle, (150, 150, 150, 50), (radius, radius), radius-2)
+				pygame.draw.circle(transparent_circle, (150, 150, 150, 50), (radius, radius), radius - 2)
 				pygame.draw.circle(transparent_circle, (200, 200, 200, 50), (radius, radius), radius, 2)
 				screen.blit(transparent_circle, (position[0] - radius, position[1] - radius))
 				pygame.draw.circle(screen, (100, 100, 100), position, 10)
@@ -218,14 +245,24 @@ if __name__ == "__main__":
 				startingPoint = None
 				endingPoint = None
 
+		# Level out of editing mode
 		else:
-			# Draw the map
-			radius = int(roadWidth/2)
+			# Draw the roads
+			radius = int(roadWidth / 2)
 			for position in points:
 				pygame.draw.circle(screen, roadColor, position, radius)
 
 			for line in lines:
 				draw_line(screen, line, roadColor, roadWidth)
+
+			# Draw the reward gates
+			colorRewardGates = (101, 101, 101)
+			if DEBUG:
+				colorRewardGates = (255, 0, 0)
+			for road in rewardGates:
+				for line in road:
+					if DEBUG:
+						pygame.draw.line(screen, colorRewardGates, line[0], line[1], 2)
 
 			# Draw the taxi
 			taxi.draw(screen)
