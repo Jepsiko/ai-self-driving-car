@@ -4,10 +4,14 @@ from pygame.math import Vector2
 
 class Car:
 
-	def __init__(self, img, x, y):
+	def __init__(self, img, x, y, heading=0.0):
 		self.image = pygame.image.load(img)
 
 		self.position = Vector2(x, y)
+		self.heading = heading
+		self.velocity = Vector2()
+		self.accel = Vector2()
+		self.steerAngle = 0.0
 
 	def draw(self, screen):
 		rect = self.image.get_rect()
