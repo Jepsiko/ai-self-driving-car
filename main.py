@@ -2,7 +2,6 @@ import pygame
 import math
 from Car import Car
 from Graph import Graph
-#bonjour
 
 def draw_line(screen, line, color, width):
 	pos1, pos2 = line
