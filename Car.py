@@ -1,5 +1,6 @@
 import pygame
 from pygame.math import Vector2
+from Sensor import Sensor
 
 
 class Car:
@@ -8,10 +9,12 @@ class Car:
 		self.image = pygame.image.load(img)
 
 		self.position = Vector2(x, y)
+		print("pos", self.position)
 
 	def draw(self, screen):
 		rect = self.image.get_rect()
 		screen.blit(self.image, self.position - (rect.width / 2, rect.height / 2))
+		self.create_sensor(4)
 
 	def is_on_grass(self, screen, grassColor):
 		rect = self.image.get_rect()
@@ -30,3 +33,16 @@ class Car:
 			return True
 		else:
 			return False
+
+	def get_pos(self):
+		return self.position
+
+	def create_sensor(self, nbr_sensor):
+		sensors = []
+		length = 200
+		x = 0
+		while x != nbr_sensor:
+			sensor = Sensor(self.position, length)
+			sensors.append(sensor)
+			x += 1
+		print(sensors)
