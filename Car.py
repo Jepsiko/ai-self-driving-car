@@ -11,9 +11,7 @@ class Car:
 		self.position = Vector2(x, y)
 		print("pos", self.position)
 
-		width = 5
-		height = 7
-		self.lidar = Lidar(width, height)
+		self.lidar = Lidar(5, 7)
 
 	def draw(self, screen):
 		rect = self.image.get_rect()
@@ -38,5 +36,5 @@ class Car:
 		else:
 			return False
 
-	def update(selfself):
-		Lidar.update(self.Lidar)
+	def update(self):
+		self.lidar.update()
