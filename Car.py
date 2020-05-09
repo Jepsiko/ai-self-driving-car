@@ -1,6 +1,6 @@
 import pygame
 from pygame.math import Vector2
-from Sensor import Sensor
+from Lidar import Lidar
 
 
 class Car:
@@ -11,10 +11,14 @@ class Car:
 		self.position = Vector2(x, y)
 		print("pos", self.position)
 
+		width = 5
+		height = 7
+		self.lidar = Lidar(width, height)
+
 	def draw(self, screen):
 		rect = self.image.get_rect()
 		screen.blit(self.image, self.position - (rect.width / 2, rect.height / 2))
-		self.create_sensor(4)
+		Lidar.draw(screen)
 
 	def is_on_grass(self, screen, grassColor):
 		rect = self.image.get_rect()
@@ -34,15 +38,5 @@ class Car:
 		else:
 			return False
 
-	def get_pos(self):
-		return self.position
-
-	def create_sensor(self, nbr_sensor):
-		sensors = []
-		length = 200
-		x = 0
-		while x != nbr_sensor:
-			sensor = Sensor(self.position, length)
-			sensors.append(sensor)
-			x += 1
-		print(sensors)
+	def update(selfself):
+		Lidar.update(self.Lidar)
