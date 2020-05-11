@@ -15,21 +15,21 @@ class Car:
 
 		rect = self.image.get_rect(center = self.position)
 		self.backlength = self.position[0] - rect.midleft[0]
-		print(self.position, rect.midleft)
-		print(self.backlength)
+		#print(self.position, rect.midleft)
+		#print(self.backlength)
 
 	def draw(self, screen):
-		rot = 45
+		rot = 213
 		rotated = pygame.transform.rotate(self.image, rot)
 
 		rect = rotated.get_rect(center = self.position)
 		rect1 = self.image.get_rect(center = self.position)
 		backlength1 = self.position[0] - rect1.midleft[0]
-		print("back", backlength1)
+		#print("back", backlength1)
 		screen.blit(rotated, rect)
 		pygame.draw.rect(screen, (200, 0, 0), rect, 1)
 
-		self.lidar.draw(screen, self.position, rot, 100, 300, backlength1)
+		self.lidar.draw(screen, self.position, rot, rect.width, rect.height, backlength1)
 
 		"""
 		rect = self.image.get_rect()
