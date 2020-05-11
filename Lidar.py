@@ -4,21 +4,25 @@ import numpy as np
 
 class Lidar:
 
-    def __init__(self, width, height):
+    def __init__(self, lin, col):
 
-        self.matrix = np.zeros((height, width), dtype=int)
+        self.matrix = np.zeros((lin, col), dtype=int)
 
     def update(self):
-        self.matrix[6][2] = 1
-         #print(self.matrix)
+        self.matrix[6][2] = 99
+        for i in range(len(self.matrix)):
+            for j in range(len(self.matrix[i])):
+                print(self.matrix[i][j],)
+
+
+
+        print(self.matrix)
 
     def draw(self, screen, pos, rot, width, length, backlenght):
         width = width * 5
         length = length * 20
 
         rot = math.radians(rot)
-        cos = math.cos(rot)
-        sin = math.sin(rot)
         #p1=(pos[0] + cos * length, pos[1] - sin * width)
 
         hypfrontof = math.sqrt(math.pow(length, 2) + math.pow((width / 2), 2))

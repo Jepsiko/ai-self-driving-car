@@ -11,7 +11,7 @@ class Car:
 		self.position = Vector2(x, y)
 		#print("pos", self.position)
 
-		self.lidar = Lidar(5, 7)
+		self.lidar = Lidar(7, 5)
 
 		rect = self.image.get_rect(center = self.position)
 		self.backlength = self.position[0] - rect.midleft[0]
@@ -29,7 +29,7 @@ class Car:
 		screen.blit(rotated, rect)
 		pygame.draw.rect(screen, (200, 0, 0), rect, 1)
 
-		self.lidar.draw(screen, self.position, rot, rect.width, rect.height, backlength1)
+		self.lidar.draw(screen, self.position, rot, rect1.width, rect1.height, backlength1)
 
 		"""
 		rect = self.image.get_rect()
