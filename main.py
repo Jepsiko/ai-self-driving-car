@@ -264,6 +264,7 @@ if __name__ == "__main__":
 					pygame.draw.line(screen, colorRewardGates, line[0], line[1], 2)
 
 			# Draw the taxi
+			taxi.update()
 			taxi.draw(screen)
 			if taxi.is_on_grass(screen, backgroundColor):
 				pass
