@@ -1,4 +1,5 @@
 import pygame
+from pygame.locals import *
 import math
 from Car import Car
 from Graph import Graph
@@ -53,8 +54,23 @@ def create_reward_gates():
 			pointRight = (int(pointMiddle[0] + gatesWidth / 2 * math.cos(angle + math.pi / 2)),
 						  int(pointMiddle[1] + gatesWidth / 2 * math.sin(angle + math.pi / 2)))
 			rewardGates[i].append((pointLeft, pointRight))
+	
+def on_press(direction, vect):
+	keys_pressed = pygame.key.get_pressed()
 
-
+	if direction:
+		if direction == K_UP:
+			vect[1]-=1
+			
+		elif direction == K_DOWN:
+			vect[1]+=1
+				
+		if direction == K_LEFT:
+			vect[0]-=1
+				
+		elif direction == K_RIGHT:
+			vect[0]+=1
+			
 if __name__ == "__main__":
 	WIDTH = 1366
 	HEIGHT = 768
@@ -86,6 +102,13 @@ if __name__ == "__main__":
 	crossing = False
 	points = []
 	lines = []
+
+	#Keyboard
+	UP='up'
+	LEFT='left'
+	RIGHT='right'
+	DOWN='down'
+	direction=None
 
 	# Level design
 	backgroundColor = (20, 60, 20)
@@ -247,7 +270,7 @@ if __name__ == "__main__":
 				endingPoint = None
 
 		# Level out of editing mode
-		else:
+		else :
 			# Draw the roads
 			radius = int(roadWidth / 2)
 			for position in points:
@@ -268,6 +291,15 @@ if __name__ == "__main__":
 			taxi.draw(screen)
 			if taxi.is_on_grass(screen, backgroundColor):
 				pass
-
+			else :
+				for event in pygame.event.get():
+						if event.type == KEYDOWN:
+								direction = event.key
+						if event.type == KEYUP:
+								if (event.key == direction):
+										direction = None
+				on_press(direction, taxi.get_position())
+				taxi.move()
+				
 		# Always update the display at the end of the loop
 		pygame.display.update()
