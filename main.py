@@ -89,7 +89,7 @@ if __name__ == "__main__":
 	lines = []
 
 	# Level design
-	backgroundColor = (20, 60, 20)
+	backgroundColor = (0, 100, 0)
 	roadColor = (100, 100, 100)
 	roadWidth = 50
 

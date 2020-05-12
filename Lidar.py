@@ -30,7 +30,7 @@ class Lidar:
 			for j in range(len(self.matrix[i])):
 				color_current = screen.get_at((int(current.x), int(current.y)))
 
-				if color_current == (20, 60, 20):
+				if color_current == (0, 100, 0):
 					self.matrix[i][j] = 0
 				elif color_current == (100, 100, 100):
 					self.matrix[i][j] = 1
@@ -81,8 +81,8 @@ class Lidar:
 		pygame.draw.rect(screen, (0, 0, 0), border)
 		x += border_size
 		y += border_size
-		for i in range(self.col):
-			for j in range(self.row):
+		for i in range(self.row):
+			for j in range(self.col):
 				square = pygame.rect.Rect(j*square_size + x, i*square_size + y, square_size, square_size)
 
 				if self.matrix[i][j] == 0:

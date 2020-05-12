@@ -10,7 +10,7 @@ class Car:
 		self.image = pygame.image.load(img)
 
 		self.position = Vector2(x, y)
-		self.lidar = Lidar(7, 7)
+		self.lidar = Lidar(7, 6)
 		self.rotation = 0
 
 	def draw(self, screen):
