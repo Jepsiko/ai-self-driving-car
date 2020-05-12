@@ -10,7 +10,7 @@ class Car:
 		self.image = pygame.image.load(img)
 
 		self.position = Vector2(x, y)
-		self.lidar = Lidar(7, 5)
+		self.lidar = Lidar(7, 7)
 		self.rotation = 0
 
 	def draw(self, screen):
@@ -23,6 +23,9 @@ class Car:
 
 	def draw_lidar(self, screen):
 		self.lidar.draw(screen, self.position, -math.radians(self.rotation))
+
+	def draw_view(self, screen, pos):
+		self.lidar.draw_view(screen, pos)
 
 	def is_on_grass(self, screen, grassColor):
 		rect = self.image.get_rect()
@@ -42,6 +45,6 @@ class Car:
 		else:
 			return False
 
-	def update(self):
-		self.rotation += 1  # TEMP
-		self.lidar.update(self.position, self.rotation)
+	def update(self, screen):
+		self.rotation += 0.1  # TEMP
+		self.lidar.update(screen, self.position, -math.radians(self.rotation))

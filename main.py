@@ -2,6 +2,8 @@ import pygame
 import math
 from Car import Car
 from Graph import Graph
+from pygame.math import Vector2
+
 
 def draw_line(screen, line, color, width):
 	pos1, pos2 = line
@@ -264,8 +266,9 @@ if __name__ == "__main__":
 					pygame.draw.line(screen, colorRewardGates, line[0], line[1], 2)
 
 			# Draw the taxi
-			taxi.update()
+			taxi.update(screen)
 			taxi.draw(screen)
+			taxi.draw_view(screen, (10, 10))
 			if DEBUG:
 				taxi.draw_lidar(screen)
 			if taxi.is_on_grass(screen, backgroundColor):
