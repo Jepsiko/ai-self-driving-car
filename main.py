@@ -266,6 +266,8 @@ if __name__ == "__main__":
 			# Draw the taxi
 			taxi.update()
 			taxi.draw(screen)
+			if DEBUG:
+				taxi.draw_lidar(screen)
 			if taxi.is_on_grass(screen, backgroundColor):
 				pass
 
