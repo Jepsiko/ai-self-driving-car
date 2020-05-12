@@ -10,6 +10,8 @@ def draw_line(screen, line, color, width):
 	x1, y1 = pos1
 	x2, y2 = pos2
 	length = math.hypot(x1 - x2, y1 - y2)
+	if length == 0:
+		return
 	angle = math.acos((x2 - x1) / length)
 	if y2 < y1:
 		angle = math.pi * 2 - angle
@@ -90,7 +92,7 @@ if __name__ == "__main__":
 
 	# Level design
 	backgroundColor = (0, 100, 0)
-	roadColor = (100, 100, 100)
+	roadColor = (80, 80, 80)
 	roadWidth = 50
 
 	# Reward gates
@@ -175,7 +177,7 @@ if __name__ == "__main__":
 					lineEditing = False
 					pointEditing = False
 					graph = Graph(points, lines)
-					create_reward_gates()
+					# create_reward_gates()  # TODO: maybe no use for it
 
 				# "D" to enter Debug mode
 				if event.key == pygame.K_d:
@@ -258,7 +260,7 @@ if __name__ == "__main__":
 				draw_line(screen, line, roadColor, roadWidth)
 
 			# Draw the reward gates
-			colorRewardGates = (101, 101, 101)
+			colorRewardGates = (81, 81, 81)
 			if DEBUG:
 				colorRewardGates = (255, 0, 0)
 			for road in rewardGates:

@@ -32,7 +32,7 @@ class Lidar:
 
 				if color_current == (0, 100, 0):
 					self.matrix[i][j] = 0
-				elif color_current == (100, 100, 100):
+				elif color_current == (80, 80, 80):
 					self.matrix[i][j] = 1
 				else:
 					self.matrix[i][j] = 1
