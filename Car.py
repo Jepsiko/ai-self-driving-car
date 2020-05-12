@@ -9,28 +9,18 @@ class Car:
 		self.image = pygame.image.load(img)
 
 		self.position = Vector2(x, y)
-		#print("pos", self.position)
-
-		self.lidar = Lidar(7, 5)
-
-		rect = self.image.get_rect(center = self.position)
-		self.backlength = self.position[0] - rect.midleft[0]
-		#print(self.position, rect.midleft)
-		#print(self.backlength)
+		self.lidar = Lidar(7, 5, 200, 150, 12)
 
 	def draw(self, screen):
-		rot = 213
+		rot = 45
 		rotated = pygame.transform.rotate(self.image, rot)
 
 		rect = rotated.get_rect(center = self.position)
-		rect1 = self.image.get_rect(center = self.position)
-		backlength1 = self.position[0] - rect1.midleft[0]
-		#print("back", backlength1)
+
 		screen.blit(rotated, rect)
-		pygame.draw.rect(screen, (200, 0, 0), rect, 1)
+		#pygame.draw.rect(screen, (200, 0, 0), rect, 1)
 
-		self.lidar.draw(screen, self.position, rot, rect1.width, rect1.height, backlength1)
-
+		self.lidar.draw(screen, self.position, rot,  12)
 		"""
 		rect = self.image.get_rect()
 		screen.blit(self.image, self.position - (rect.width / 2, rect.height / 2))
