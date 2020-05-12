@@ -1,6 +1,7 @@
 import pygame
 import settings
 from tools import *
+from Car import Car
 
 
 class GameUI:
@@ -14,6 +15,9 @@ class GameUI:
 		pygame.display.set_caption("Taxi Agent")
 		icon = pygame.image.load("taxi.png")
 		pygame.display.set_icon(icon)
+
+		# Taxi taxi
+		self.taxi = Car("car.png", 0, 0)
 
 	def draw_background(self):
 		self.screen.fill(settings.GRASS_COLOR)
@@ -100,7 +104,7 @@ class GameUI:
 				  y2 + int(width / 2 * math.sin(angle + math.pi / 2)))
 		pygame.draw.polygon(self.screen, color, [point1, point2, point3, point4])
 
-	def draw_game(self, points, lines, taxi):
+	def game(self, points, lines):
 		# Draw the roads
 		radius = int(settings.ROAD_WIDTH / 2)
 		for position in points:
@@ -118,9 +122,117 @@ class GameUI:
 		# 	for line in road:
 		# 		pygame.draw.line(screen, colorRewardGates, line[0], line[1], 2)
 
+		# Update the game
+		self.update()
+
 		# Draw the taxi
-		taxi.update(self.screen)
-		taxi.draw(self.screen)
-		taxi.draw_view(self.screen, (10, 10))
-		if taxi.is_on_grass(self.screen):
-			pass
+		self.draw_car()
+		self.draw_view((10, 10))
+		if self.is_on_grass():
+			print("WOW !!")
+
+	def update(self):
+		self.taxi.update(self.screen)
+
+	def draw_car(self):
+		car = self.taxi
+
+		rot = car.angle
+		rotated = pygame.transform.rotate(car.image, rot)
+
+		rect = rotated.get_rect(center=car.position)
+
+		self.screen.blit(rotated, rect)
+
+		if settings.DEBUG:
+			self.draw_lidar()
+
+	def draw_view(self, pos):
+		lidar = self.taxi.lidar
+
+		x, y = pos
+		border_size = settings.LIDAR_VIEW_BORDER_SIZE
+		square_size = settings.LIDAR_VIEW_SQUARE_SIZE
+
+		border = pygame.rect.Rect(x, y,
+								  lidar.col * square_size + border_size * 2,
+								  lidar.row * square_size + border_size * 2)
+		pygame.draw.rect(self.screen, settings.LIDAR_VIEW_BORDER_COLOR, border)
+		x += border_size
+		y += border_size
+		for i in range(lidar.row):
+			for j in range(lidar.col):
+				square = pygame.rect.Rect(j * square_size + x, i * square_size + y, square_size, square_size)
+
+				if lidar.matrix[i][j] == 0:
+					pygame.draw.rect(self.screen, settings.LIDAR_VIEW_GRASS, square)
+				else:
+					pygame.draw.rect(self.screen, settings.LIDAR_VIEW_ROAD, square)
+
+	def draw_lidar(self):
+		pos = self.taxi.position
+		angle = -math.radians(self.taxi.angle)
+		lidar = self.taxi.lidar
+
+		front = get_point_at_vector(pos, lidar.length - lidar.back_length, angle)
+		front_right = get_point_at_vector(front, lidar.width / 2, math.pi / 2 + angle)
+		front_left = get_point_at_vector(front, lidar.width / 2, angle - math.pi / 2)
+
+		back = get_point_at_vector(pos, lidar.back_length, math.pi + angle)
+		back_right = get_point_at_vector(back, lidar.width / 2, math.pi / 2 + angle)
+		back_left = get_point_at_vector(back, lidar.width / 2, angle - math.pi / 2)
+
+		lidar_corners = [front_left, back_left, back_right, front_right]
+		pygame.draw.lines(self.screen, settings.LIDAR_BOX_COLOR, True, lidar_corners)
+
+		self.draw_lidar_points()
+
+	def draw_lidar_points(self):
+		pos = self.taxi.position
+		angle = -math.radians(self.taxi.angle)
+		lidar = self.taxi.lidar
+
+		front = get_point_at_vector(pos, lidar.length - lidar.back_length, angle)
+		front_left = get_point_at_vector(front, lidar.width / 2, angle - math.pi / 2)
+
+		current = front_left
+
+		for i in range(len(lidar.matrix)):
+			first_of_line = current
+			for j in range(len(lidar.matrix[i])):
+				pygame.draw.circle(self.screen, settings.LIDAR_POINTS_COLOR, (int(current.x), int(current.y)), 3)
+
+				current = get_point_at_vector(current, lidar.width / (lidar.col - 1), math.pi / 2 + angle)
+			current = get_point_at_vector(first_of_line, lidar.length / (lidar.row - 1), math.pi + angle)
+
+	def is_on_grass(self):
+		angle = -math.radians(self.taxi.angle)
+		car = self.taxi
+
+		front = get_point_at_vector(car.position, car.length / 2, angle)
+		front_right = get_point_at_vector(front, car.width / 2, math.pi / 2 + angle)
+		front_left = get_point_at_vector(front, car.width / 2, angle - math.pi / 2)
+
+		back = get_point_at_vector(car.position, car.length / 2, math.pi + angle)
+		back_right = get_point_at_vector(back, car.width / 2, math.pi / 2 + angle)
+		back_left = get_point_at_vector(back, car.width / 2, angle - math.pi / 2)
+
+		on_grass = False
+		if self.screen.get_at((int(front_left.x), int(front_left.y))) == settings.GRASS_COLOR:
+			on_grass = True
+		elif self.screen.get_at((int(front_right.x), int(front_right.y))) == settings.GRASS_COLOR:
+			on_grass = True
+		elif self.screen.get_at((int(back_left.x), int(back_left.y))) == settings.GRASS_COLOR:
+			on_grass = True
+		elif self.screen.get_at((int(back_right.x), int(back_right.y))) == settings.GRASS_COLOR:
+			on_grass = True
+
+		# Draw the hitbox of the car
+		if settings.DEBUG:
+			lidar_corners = [front_left, back_left, back_right, front_right]
+			pygame.draw.lines(self.screen, settings.CAR_HITBOX_COLOR, True, lidar_corners)
+
+		return on_grass
+
+	def change_car_position(self, position):
+		self.taxi.position = position

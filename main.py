@@ -1,5 +1,4 @@
 import pygame
-from Car import Car
 from Graph import Graph
 import settings
 from tools import *
@@ -35,9 +34,6 @@ if __name__ == "__main__":
 	pygame.init()
 
 	gameUI = GameUI()
-
-	# Taxi taxi
-	taxi = Car("car.png", 0, 0)
 
 	# Level creation
 	pointEditing = True
@@ -125,7 +121,7 @@ if __name__ == "__main__":
 				# "F" to Finish editing
 				if event.key == pygame.K_f:
 					if len(points) > 0:
-						taxi.position[0], taxi.position[1] = points[0]
+						gameUI.change_car_position(Vector2(points[0]))
 
 					lineEditing = False
 					pointEditing = False
@@ -149,7 +145,7 @@ if __name__ == "__main__":
 		elif lineEditing:
 			startingPoint, endingPoint = gameUI.line_editing(points, lines, startingPoint, endingPoint)
 		else:
-			gameUI.draw_game(points, lines, taxi)
+			gameUI.game(points, lines)
 
 		# Always update the display at the end of the loop
 		pygame.display.update()
