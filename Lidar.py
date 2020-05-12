@@ -41,9 +41,6 @@ class Lidar:
 			current = get_point_at_vector(first_of_line, self.length / (self.row - 1), math.pi + angle)
 
 	def draw(self, screen, pos, angle):
-		# TEMP
-		angleVector = get_point_at_vector(pos, 30, angle)
-		pygame.draw.line(screen, (0, 0, 255), pos, angleVector)
 
 		front = get_point_at_vector(pos, self.length - self.back_length, angle)
 		front_right = get_point_at_vector(front, self.width / 2, math.pi / 2 + angle)
