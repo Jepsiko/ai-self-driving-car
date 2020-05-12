@@ -1,8 +1,9 @@
 import pygame
-import math
 from Car import Car
 from Graph import Graph
-from pygame.math import Vector2
+import settings
+from tools import *
+from GameUI import GameUI
 
 
 def draw_line(screen, line, color, width):
@@ -22,23 +23,8 @@ def draw_line(screen, line, color, width):
 	pygame.draw.polygon(screen, color, [point1, point2, point3, point4])
 
 
-def ccw(A, B, C):
-	return (C[1] - A[1]) * (B[0] - A[0]) > (B[1] - A[1]) * (C[0] - A[0])
-
-
-def is_line_crossing(line1, line2):
-	A, B = line1
-	C, D = line2
-
-	# Prevent lines starting from the same point from being noticed as crossed lines
-	if A == C or A == D or B == C or B == D:
-		return False
-
-	return ccw(A, C, D) != ccw(B, C, D) and ccw(A, B, C) != ccw(A, B, D)
-
-
 def create_reward_gates():
-	gatesWidth = roadWidth - 4
+	gatesWidth = settings.ROAD_WIDTH - 4
 	for i in range(len(lines)):
 		pos1, pos2 = lines[i]
 		x1, y1 = pos1
@@ -59,29 +45,18 @@ def create_reward_gates():
 
 
 if __name__ == "__main__":
-	WIDTH = 1366
-	HEIGHT = 768
-	DEBUG = False
 
 	print("Press P to edit points, L to edit lines, F when you've finished, D for debug and ESC to quit")
 
 	# Initialize pygame
 	pygame.init()
 
-	# Create the screen
-	screen = pygame.display.set_mode((WIDTH, HEIGHT))
-	# screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.FULLSCREEN) #  For the final version
-
-	# Title and Icon
-	pygame.display.set_caption("Taxi Agent")
-	icon = pygame.image.load("taxi.png")
-	pygame.display.set_icon(icon)
+	gameUI = GameUI()
 
 	# Taxi taxi
 	taxi = Car("car.png", 0, 0)
 
 	# Level creation
-	minimalDistancePoint = 150
 	pointEditing = True
 	lineEditing = False
 	startingPoint = None
@@ -89,11 +64,6 @@ if __name__ == "__main__":
 	crossing = False
 	points = []
 	lines = []
-
-	# Level design
-	backgroundColor = (0, 100, 0)
-	roadColor = (80, 80, 80)
-	roadWidth = 50
 
 	# Reward gates
 	rewardGates = []
@@ -181,14 +151,14 @@ if __name__ == "__main__":
 
 				# "D" to enter Debug mode
 				if event.key == pygame.K_d:
-					DEBUG = not DEBUG
+					settings.DEBUG = not settings.DEBUG
 
 				# "ESC" to Quit
 				if event.key == pygame.K_ESCAPE:
 					running = False
 
 		# Change the background color
-		screen.fill(backgroundColor)
+		gameUI.draw_background()
 
 		# Level editing GUI
 		mouseX, mouseY = pygame.mouse.get_pos()
@@ -196,14 +166,14 @@ if __name__ == "__main__":
 
 			spaceAvailable = True
 			for position in points:
-				radius = minimalDistancePoint
-				transparent_circle = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
+				radius = settings.MIN_DIST_POINTS
+				transparent_circle = pygame.Surface((settings.WIDTH, settings.HEIGHT), pygame.SRCALPHA)
 				pygame.draw.circle(transparent_circle, (150, 150, 150, 50), (radius * 2, radius * 2), radius - 2)
 				pygame.draw.circle(transparent_circle, (200, 200, 200, 50), (radius * 2, radius * 2), radius, 2)
 				screen.blit(transparent_circle, (position[0] - radius * 2, position[1] - radius * 2))
 				pygame.draw.circle(screen, (100, 150, 255), position, 10)
 
-				if math.hypot(position[0] - mouseX, position[1] - mouseY) <= minimalDistancePoint:
+				if math.hypot(position[0] - mouseX, position[1] - mouseY) <= settings.MIN_DIST_POINTS:
 					spaceAvailable = False
 
 			# If the mouse is in the window
@@ -221,16 +191,16 @@ if __name__ == "__main__":
 
 		elif lineEditing:
 			for position in points:
-				radius = int(roadWidth / 2)
-				transparent_circle = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
+				radius = int(settings.ROAD_WIDTH / 2)
+				transparent_circle = pygame.Surface((settings.WIDTH, settings.HEIGHT), pygame.SRCALPHA)
 				pygame.draw.circle(transparent_circle, (150, 150, 150, 50), (radius, radius), radius - 2)
 				pygame.draw.circle(transparent_circle, (200, 200, 200, 50), (radius, radius), radius, 2)
 				screen.blit(transparent_circle, (position[0] - radius, position[1] - radius))
-				pygame.draw.circle(screen, (100, 100, 100), position, 10)
+				pygame.draw.circle(screen, settings.ROAD_COLOR, position, 10)
 
 			crossing = False
 			for line in lines:
-				draw_line(screen, line, (100, 100, 100), 20)
+				draw_line(screen, line, settings.ROAD_COLOR, 20)
 
 				if startingPoint is not None and is_line_crossing(line, (startingPoint, (mouseX, mouseY))):
 					crossing = True
@@ -238,9 +208,9 @@ if __name__ == "__main__":
 			if startingPoint is not None:
 				line_to_mouse = (startingPoint, (mouseX, mouseY))
 				if crossing:
-					draw_line(screen, line_to_mouse, (150, 100, 100), 20)
+					draw_line(screen, line_to_mouse, settings.CROSSING_ROAD_COLOR, 20)
 				else:
-					draw_line(screen, line_to_mouse, (100, 100, 100), 20)
+					draw_line(screen, line_to_mouse, settings.ROAD_COLOR, 20)
 
 			# Add a new line
 			if endingPoint is not None:
@@ -252,28 +222,27 @@ if __name__ == "__main__":
 		# Level out of editing mode
 		else:
 			# Draw the roads
-			radius = int(roadWidth / 2)
+			radius = int(settings.ROAD_WIDTH / 2)
 			for position in points:
-				pygame.draw.circle(screen, roadColor, position, radius)
+				pygame.draw.circle(screen, settings.ROAD_COLOR, position, radius)
 
 			for line in lines:
-				draw_line(screen, line, roadColor, roadWidth)
+				draw_line(screen, line, settings.ROAD_COLOR, settings.ROAD_WIDTH)
 
-			# Draw the reward gates
-			colorRewardGates = (81, 81, 81)
-			if DEBUG:
-				colorRewardGates = (255, 0, 0)
-			for road in rewardGates:
-				for line in road:
-					pygame.draw.line(screen, colorRewardGates, line[0], line[1], 2)
+			# # Draw the reward gates
+			# colorRewardGates = (81, 81, 81)
+			# global DEBUG
+			# if DEBUG:
+			# 	colorRewardGates = (255, 0, 0)
+			# for road in rewardGates:
+			# 	for line in road:
+			# 		pygame.draw.line(screen, colorRewardGates, line[0], line[1], 2)
 
 			# Draw the taxi
 			taxi.update(screen)
 			taxi.draw(screen)
 			taxi.draw_view(screen, (10, 10))
-			if DEBUG:
-				taxi.draw_lidar(screen)
-			if taxi.is_on_grass(screen, backgroundColor):
+			if taxi.is_on_grass(screen):
 				pass
 
 		# Always update the display at the end of the loop
