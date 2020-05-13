@@ -1,6 +1,7 @@
 import pygame
 from Lidar import Lidar
 from tools import *
+from Agent import Agent
 
 
 class Car:
@@ -13,6 +14,8 @@ class Car:
 		self.position = Vector2(x, y)
 		self.lidar = Lidar(7, 6)
 		self.angle = 0
+
+		self.agent = Agent(self.lidar)
 
 	def update(self, screen):
 		self.angle += 0.1  # TEMP
