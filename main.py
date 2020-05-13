@@ -5,27 +5,6 @@ from tools import *
 from GameUI import GameUI
 
 
-def create_reward_gates():
-	gatesWidth = settings.ROAD_WIDTH - 4
-	for i in range(len(lines)):
-		pos1, pos2 = lines[i]
-		x1, y1 = pos1
-		x2, y2 = pos2
-		length = math.hypot(x1 - x2, y1 - y2)
-		angle = math.acos((x2 - x1) / length)
-		if y2 < y1:
-			angle = math.pi * 2 - angle
-
-		rewardGates.append([])
-		for j in range(spaceBetweenGates, int(length) - spaceBetweenGates, spaceBetweenGates):
-			pointMiddle = (x1 + j * math.cos(angle), y1 + j * math.sin(angle))
-			pointLeft = (int(pointMiddle[0] + gatesWidth / 2 * math.cos(angle - math.pi / 2)),
-						 int(pointMiddle[1] + gatesWidth / 2 * math.sin(angle - math.pi / 2)))
-			pointRight = (int(pointMiddle[0] + gatesWidth / 2 * math.cos(angle + math.pi / 2)),
-						  int(pointMiddle[1] + gatesWidth / 2 * math.sin(angle + math.pi / 2)))
-			rewardGates[i].append((pointLeft, pointRight))
-
-
 if __name__ == "__main__":
 
 	print("Press P to edit points, L to edit lines, F when you've finished, D for debug and ESC to quit")
@@ -43,10 +22,6 @@ if __name__ == "__main__":
 	crossing = False
 	points = []
 	lines = []
-
-	# Reward gates
-	rewardGates = []
-	spaceBetweenGates = 50
 
 	# Graph creation
 	graph = None
@@ -109,14 +84,12 @@ if __name__ == "__main__":
 					pointEditing = True
 					lineEditing = False
 					graph = None
-					rewardGates = []
 
 				# "L" to enter Line editing mode
 				if event.key == pygame.K_l:
 					lineEditing = True
 					pointEditing = False
 					graph = None
-					rewardGates = []
 
 				# "F" to Finish editing
 				if event.key == pygame.K_f:
@@ -126,7 +99,6 @@ if __name__ == "__main__":
 					lineEditing = False
 					pointEditing = False
 					graph = Graph(points, lines)
-					# create_reward_gates()  # TODO: maybe no use for it
 
 				# "D" to enter Debug mode
 				if event.key == pygame.K_d:
