@@ -23,7 +23,10 @@ class Lidar:
 		for i in range(len(self.matrix)):
 			first_of_line = current
 			for j in range(len(self.matrix[i])):
-				color_current = screen.get_at((int(current.x), int(current.y)))
+				try:
+					color_current = screen.get_at((int(current.x), int(current.y)))
+				except IndexError:  # If the current point is out of the screen
+					color_current = settings.GRASS_COLOR
 
 				if color_current == settings.GRASS_COLOR:
 					self.matrix[i][j] = 0
