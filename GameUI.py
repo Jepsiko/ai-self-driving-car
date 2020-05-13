@@ -113,15 +113,6 @@ class GameUI:
 		for line in lines:
 			self.draw_line(line, settings.ROAD_COLOR, settings.ROAD_WIDTH)
 
-		# # Draw the reward gates
-		# colorRewardGates = (81, 81, 81)
-		# global DEBUG
-		# if DEBUG:
-		# 	colorRewardGates = (255, 0, 0)
-		# for road in rewardGates:
-		# 	for line in road:
-		# 		pygame.draw.line(screen, colorRewardGates, line[0], line[1], 2)
-
 		# Update the game
 		self.update()
 
