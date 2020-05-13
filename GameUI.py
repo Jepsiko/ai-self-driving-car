@@ -127,6 +127,9 @@ class GameUI:
 
 		# Draw the taxi
 		self.draw_car()
+		if settings.DEBUG:
+			self.draw_lidar()
+			self.draw_lidar_points()
 		self.draw_view((10, 10))
 		if self.is_on_grass():
 			print("WOW !!")
@@ -137,15 +140,10 @@ class GameUI:
 	def draw_car(self):
 		car = self.taxi
 
-		rot = car.angle
-		rotated = pygame.transform.rotate(car.image, rot)
-
+		rotated = pygame.transform.rotate(car.image, car.angle)
 		rect = rotated.get_rect(center=car.position)
 
 		self.screen.blit(rotated, rect)
-
-		if settings.DEBUG:
-			self.draw_lidar()
 
 	def draw_view(self, pos):
 		lidar = self.taxi.lidar
@@ -184,8 +182,6 @@ class GameUI:
 
 		lidar_corners = [front_left, back_left, back_right, front_right]
 		pygame.draw.lines(self.screen, settings.LIDAR_BOX_COLOR, True, lidar_corners)
-
-		self.draw_lidar_points()
 
 	def draw_lidar_points(self):
 		pos = self.taxi.position
