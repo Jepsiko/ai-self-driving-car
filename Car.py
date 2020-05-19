@@ -1,63 +1,69 @@
 import pygame
-from pygame.math import Vector2
-from pygame.locals import *
+from Lidar import Lidar
+from math import sin, radians, degrees, copysign
+from tools import *
 
 
 class Car:
 
 	def __init__(self, img, x, y):
 		self.image = pygame.image.load(img)
+		self.width = self.image.get_rect().height
+		self.length = self.image.get_rect().width
+
 		self.position = Vector2(x, y)
-		self.direction = Vector2(0, 0)
+		self.lidar = Lidar(7, 6)
+
 		self.speed = Vector2(0.1, 0.12)
-		self.heading = heading
-		self.velocity = Vector2()
-		self.accel = Vector2()
-		self.steerAngle = 0.0
+		self.direction = Vector2(0, 0)
 
-	def draw(self, screen):
-		rect = self.image.get_rect()
-		screen.blit(self.image, self.position - (rect.width / 2, rect.height / 2))
+		self.angle = 0
+		self.acceleration = 0
+		self.steering = 0
+		self.velocity = Vector2(0,0)
 
-	def is_on_grass(self, screen, grassColor):
-		rect = self.image.get_rect()
+		self.max_acceleration = 5
+		self.max_steering = 30
+		self.max_velocity = 20
+		
+		self.brake_deceleration = 10
+		self.free_deceleration = 2
 
-		topleft = (int(self.position.x + rect.topleft[0]), int(self.position.y + rect.topleft[1]))
-		bottomleft = (int(self.position.x + rect.bottomleft[0]), int(self.position.y + rect.bottomleft[1]))
-		topright = (int(self.position.x + rect.topright[0]), int(self.position.y + rect.topright[1]))
-		bottomright = (int(self.position.x + rect.bottomright[0]), int(self.position.y + rect.bottomright[1]))
-		if screen.get_at(topleft) == grassColor:
-			return True
-		elif screen.get_at(bottomleft) == grassColor:
-			return True
-		elif screen.get_at(topright) == grassColor:
-			return True
-		elif screen.get_at(bottomright) == grassColor:
-			return True
-		else:
-			return False
-	
-	def from_angle(self, angle):
-		rads = math.radians(angle)
-		self.direction = Vector2(math.sin(rads), math.cos(rads))
+	def update(self, screen, delta):
+		#self.angle -= 0.1
+		"""
+		self.velocity += (self.acceleration * delta,0)
+		self.velocity.x = max(-self.max_velocity, min(self.velocity.x, self.max_velocity))
 
-	def move(self, delta=1):
+		if self.steering:
+			turn_rad = self.length / sin(radians(self.steering))
+			velocity_angle = self.velocity.x / turn_rad
+		else :
+			velocity_angle = 0
+		
+		self.position += self.velocity.rotate(-self.angle) * delta
+		self.angle += degrees(velocity_angle) * delta
+		"""
 		self.position.x += self.speed.x * delta * self.direction.x
 		self.position.y += self.speed.y * delta * self.direction.y
-
-		rect = self.image.get_rect()
-		topleft = (int(self.position.x + rect.topleft[0]), int(self.position.y + rect.topleft[1]))
-		bottomleft = (int(self.position.x + rect.bottomleft[0]), int(self.position.y + rect.bottomleft[1]))
-		topright = (int(self.position.x + rect.topright[0]), int(self.position.y + rect.topright[1]))
-		bottomright = (int(self.position.x + rect.bottomright[0]), int(self.position.y + rect.bottomright[1]))
+		#self.image.get_rect().topleft = self.position
+		self.lidar.update(screen, self.position, -math.radians(self.angle))
 	
-		#self.rect.topleft = self.position
-
+	def from_angle(self, angle):
+		# import math
+		rads = math.radians(angle)
+		self.direction = pygame.Vector2(math.sin(rads), math.cos(rads))
+		
+	
 	def from_vector(self, vector):
 		self.direction = (vector - self.position).normalize()
+
+	def getState():
+		return state
+
+	def step():
+		return step
 	
-	def get_position(self):
-		return self.position
 
+	
 
-		
