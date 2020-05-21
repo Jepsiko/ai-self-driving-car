@@ -1,6 +1,4 @@
-import os
 import numpy as np
-import tensorflow as tf
 
 
 class ReplayBuffer(object):
@@ -13,7 +11,7 @@ class ReplayBuffer(object):
         self.reward_memory = np.zeros(self.mem_size)
         self.terminal_memory= np.zeors(self.mem_size, dtype=np.float32)
 
-    def store_transition(self, state, action, rewars, state_, done):
+    def store_transition(self, state, action, reward, state_, done):
         index = self.mem_cntr % self.mem_size
         self.state_memory[index] = state
         self.new_state_memory[index] = state_
