@@ -23,6 +23,15 @@ if __name__ == "__main__":
 	points = []
 	lines = []
 
+	# Level design
+	backgroundColor = (20, 60, 20)
+	roadColor = (100, 100, 100)
+	roadWidth = 50
+
+	# Reward gates
+	rewardGates = []
+	spaceBetweenGates = 50
+
 	# Graph creation
 	graph = None
 
@@ -116,6 +125,8 @@ if __name__ == "__main__":
 			gameUI.point_editing(points)
 		elif lineEditing:
 			startingPoint, endingPoint = gameUI.line_editing(points, lines, startingPoint, endingPoint)
+
+		# Level out of editing mode
 		else:
 			gameUI.game(points, lines)
 
