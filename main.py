@@ -3,98 +3,36 @@ from pygame.locals import *
 import math
 from Car import Car
 from Graph import Graph
+import settings
+from tools import *
+from GameUI import GameUI
 
-
-def draw_line(screen, line, color, width):
-	pos1, pos2 = line
-	x1, y1 = pos1
-	x2, y2 = pos2
-	length = math.hypot(x1 - x2, y1 - y2)
-	angle = math.acos((x2 - x1) / length)
-	if y2 < y1:
-		angle = math.pi * 2 - angle
-	point1 = (x1 + int(width / 2 * math.cos(angle + math.pi / 2)), y1 + int(width / 2 * math.sin(angle + math.pi / 2)))
-	point2 = (x1 + int(width / 2 * math.cos(angle - math.pi / 2)), y1 + int(width / 2 * math.sin(angle - math.pi / 2)))
-	point3 = (x2 + int(width / 2 * math.cos(angle - math.pi / 2)), y2 + int(width / 2 * math.sin(angle - math.pi / 2)))
-	point4 = (x2 + int(width / 2 * math.cos(angle + math.pi / 2)), y2 + int(width / 2 * math.sin(angle + math.pi / 2)))
-	pygame.draw.polygon(screen, color, [point1, point2, point3, point4])
-
-
-def ccw(A, B, C):
-	return (C[1] - A[1]) * (B[0] - A[0]) > (B[1] - A[1]) * (C[0] - A[0])
-
-
-def is_line_crossing(line1, line2):
-	A, B = line1
-	C, D = line2
-
-	# Prevent lines starting from the same point from being noticed as crossed lines
-	if A == C or A == D or B == C or B == D:
-		return False
-
-	return ccw(A, C, D) != ccw(B, C, D) and ccw(A, B, C) != ccw(A, B, D)
-
-
-def create_reward_gates():
-	gatesWidth = roadWidth - 4
-	for i in range(len(lines)):
-		pos1, pos2 = lines[i]
-		x1, y1 = pos1
-		x2, y2 = pos2
-		length = math.hypot(x1 - x2, y1 - y2)
-		angle = math.acos((x2 - x1) / length)
-		if y2 < y1:
-			angle = math.pi * 2 - angle
-
-		rewardGates.append([])
-		for j in range(spaceBetweenGates, int(length) - spaceBetweenGates, spaceBetweenGates):
-			pointMiddle = (x1 + j * math.cos(angle), y1 + j * math.sin(angle))
-			pointLeft = (int(pointMiddle[0] + gatesWidth / 2 * math.cos(angle - math.pi / 2)),
-						 int(pointMiddle[1] + gatesWidth / 2 * math.sin(angle - math.pi / 2)))
-			pointRight = (int(pointMiddle[0] + gatesWidth / 2 * math.cos(angle + math.pi / 2)),
-						  int(pointMiddle[1] + gatesWidth / 2 * math.sin(angle + math.pi / 2)))
-			rewardGates[i].append((pointLeft, pointRight))
-	
 def on_press(direction, vect):
 	keys_pressed = pygame.key.get_pressed()
 
 	if direction:
 		if direction == K_UP:
 			vect[1]-=1
-			
+
 		elif direction == K_DOWN:
 			vect[1]+=1
-				
+
 		if direction == K_LEFT:
 			vect[0]-=1
-				
+
 		elif direction == K_RIGHT:
 			vect[0]+=1
-			
+
 if __name__ == "__main__":
-	WIDTH = 1366
-	HEIGHT = 768
-	DEBUG = False
 
 	print("Press P to edit points, L to edit lines, F when you've finished, D for debug and ESC to quit")
 
 	# Initialize pygame
 	pygame.init()
 
-	# Create the screen
-	screen = pygame.display.set_mode((WIDTH, HEIGHT))
-	# screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.FULLSCREEN) #  For the final version
-
-	# Title and Icon
-	pygame.display.set_caption("Taxi Agent")
-	icon = pygame.image.load("taxi.png")
-	pygame.display.set_icon(icon)
-
-	# Taxi taxi
-	taxi = Car("car.png", 0, 0)
+	gameUI = GameUI()
 
 	# Level creation
-	minimalDistancePoint = 150
 	pointEditing = True
 	lineEditing = False
 	startingPoint = None
@@ -180,65 +118,36 @@ if __name__ == "__main__":
 					pointEditing = True
 					lineEditing = False
 					graph = None
-					rewardGates = []
 
 				# "L" to enter Line editing mode
 				if event.key == pygame.K_l:
 					lineEditing = True
 					pointEditing = False
 					graph = None
-					rewardGates = []
 
 				# "F" to Finish editing
 				if event.key == pygame.K_f:
 					if len(points) > 0:
-						taxi.position[0], taxi.position[1] = points[0]
+						gameUI.change_car_position(Vector2(points[0]))
 
 					lineEditing = False
 					pointEditing = False
 					graph = Graph(points, lines)
-					create_reward_gates()
 
 				# "D" to enter Debug mode
 				if event.key == pygame.K_d:
-					DEBUG = not DEBUG
+					settings.DEBUG = not settings.DEBUG
 
 				# "ESC" to Quit
 				if event.key == pygame.K_ESCAPE:
 					running = False
 
 		# Change the background color
-		screen.fill(backgroundColor)
+		gameUI.draw_background()
 
 		# Level editing GUI
-		mouseX, mouseY = pygame.mouse.get_pos()
 		if pointEditing:
-
-			spaceAvailable = True
-			for position in points:
-				radius = minimalDistancePoint
-				transparent_circle = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
-				pygame.draw.circle(transparent_circle, (150, 150, 150, 50), (radius * 2, radius * 2), radius - 2)
-				pygame.draw.circle(transparent_circle, (200, 200, 200, 50), (radius * 2, radius * 2), radius, 2)
-				screen.blit(transparent_circle, (position[0] - radius * 2, position[1] - radius * 2))
-				pygame.draw.circle(screen, (100, 150, 255), position, 10)
-
-				if math.hypot(position[0] - mouseX, position[1] - mouseY) <= minimalDistancePoint:
-					spaceAvailable = False
-
-			# If the mouse is in the window
-			if pygame.mouse.get_focused():
-				if spaceAvailable:
-					pygame.draw.circle(screen, (150, 150, 150), (mouseX, mouseY), 8)
-					pygame.draw.circle(screen, (200, 200, 200), (mouseX, mouseY), 10, 2)
-				else:
-					pygame.draw.circle(screen, (150, 100, 100), (mouseX, mouseY), 8)
-					pygame.draw.circle(screen, (200, 150, 150), (mouseX, mouseY), 10, 2)
-
-				# Add a new point
-				if pygame.mouse.get_pressed()[0] and spaceAvailable:
-					points.append((mouseX, mouseY))
-
+			gameUI.point_editing(points)
 		elif lineEditing:
 			for position in points:
 				radius = int(roadWidth / 2)
@@ -300,6 +209,10 @@ if __name__ == "__main__":
 										direction = None
 				on_press(direction, taxi.get_position())
 				taxi.move()
-				
+
+			startingPoint, endingPoint = gameUI.line_editing(points, lines, startingPoint, endingPoint)
+		else:
+			gameUI.game(points, lines)
+
 		# Always update the display at the end of the loop
 		pygame.display.update()

@@ -115,15 +115,6 @@ class GameUI:
 		for line in lines:
 			self.draw_line(line, settings.ROAD_COLOR, settings.ROAD_WIDTH)
 
-		# # Draw the reward gates
-		# colorRewardGates = (81, 81, 81)
-		# global DEBUG
-		# if DEBUG:
-		# 	colorRewardGates = (255, 0, 0)
-		# for road in rewardGates:
-		# 	for line in road:
-		# 		pygame.draw.line(screen, colorRewardGates, line[0], line[1], 2)
-
 		# Update the game
 		self.update()
 
@@ -143,7 +134,7 @@ class GameUI:
 		delta = pygame.time.Clock().get_time() / 1000
 
 		keys = pygame.key.get_pressed()
-		
+
 		x = 0
 		y = 0
 
@@ -170,7 +161,7 @@ class GameUI:
 
 		if x == 0 and y == 0:
 				car.direction = Vector2(x, y)
-				
+
 		else:
 				car.direction = Vector2(x, y).normalize()
 
