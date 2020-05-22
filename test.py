@@ -7,7 +7,7 @@ import numpy as np
 if __name__ == "__main__":
 	using_ai = True
 	env = gym.make("Pendulum-v0")
-	agent = Agent.Agent(alpha=0.0001, beta=0.001, input_dims=[3], tau=0.0005, env=env, batch_size=64, layer1_size=400,
+	agent = Agent.Agent(alpha=0.0001, beta=0.001, input_dims=[3], tau=0.001, env=env, batch_size=64, layer1_size=400,
 						layer2_size=300, n_actions=1)
 	score_history = []
 	np.random.seed(0)
