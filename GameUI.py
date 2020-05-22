@@ -2,7 +2,29 @@ import pygame
 import settings
 from tools import *
 from Car import Car
-from math import sin, radians, degrees, copysign
+from pygame.locals import *
+
+# Keyboard
+UP = 'up'
+LEFT = 'left'
+RIGHT = 'right'
+DOWN = 'down'
+direction = None
+
+
+def on_press(direction, vect):
+	if direction:
+		if direction == K_UP:
+			vect[1] -= 1
+
+		elif direction == K_DOWN:
+			vect[1] += 1
+
+		if direction == K_LEFT:
+			vect[0] -= 1
+
+		elif direction == K_RIGHT:
+			vect[0] += 1
 
 
 class GameUI:
@@ -108,6 +130,7 @@ class GameUI:
 
 	def game(self, points, lines):
 		# Draw the roads
+		global direction
 		radius = int(settings.ROAD_WIDTH / 2)
 		for position in points:
 			pygame.draw.circle(self.screen, settings.ROAD_COLOR, position, radius)
@@ -125,9 +148,12 @@ class GameUI:
 			self.draw_lidar_points()
 		self.draw_view((10, 10))
 
-		if self.is_on_grass():
-			print("WOW !!")
-
+		for event in pygame.event.get():
+			if event.type == KEYDOWN:
+				direction = event.key
+			if event.type == KEYUP:
+				if event.key == direction:
+					direction = None
 
 	def update(self):
 		car = self.taxi
@@ -140,32 +166,33 @@ class GameUI:
 
 		# Key board pressed
 		if keys[pygame.K_UP]:
-			#print("up")
+			# print("up")
 			car.position.y -= 1
 			y -= 1
 
 		if keys[pygame.K_DOWN]:
-			#print("down")
+			# print("down")
 			car.position.y += 1
 			y += 1
 
 		if keys[pygame.K_LEFT]:
-			#print("gauche")
+			# print("gauche")
 			car.position.x -= 1
 			x -= 1
 
 		if keys[pygame.K_RIGHT]:
-			#print("droite")
+			# print("droite")
 			car.position.x += 1
 			x += 1
 
 		if x == 0 and y == 0:
-				car.direction = Vector2(x, y)
+			car.direction = Vector2(x, y)
 
 		else:
-				car.direction = Vector2(x, y).normalize()
+			car.direction = Vector2(x, y).normalize()
 
-		car.update(self.screen, delta)
+		car.update(delta)
+		car.lidar.update(self.screen, car.position, -math.radians(car.angle))
 
 	def draw_car(self):
 		car = self.taxi
@@ -183,8 +210,8 @@ class GameUI:
 		square_size = settings.LIDAR_VIEW_SQUARE_SIZE
 
 		border = pygame.rect.Rect(x, y,
-									lidar.col * square_size + border_size * 2,
-									lidar.row * square_size + border_size * 2)
+								  lidar.col * square_size + border_size * 2,
+								  lidar.row * square_size + border_size * 2)
 		pygame.draw.rect(self.screen, settings.LIDAR_VIEW_BORDER_COLOR, border)
 		x += border_size
 		y += border_size
