@@ -68,7 +68,10 @@ class EventManager:
 
 	def post(self, event):
 		if not isinstance(event, TickEvent):
-			print("     Message: " + event.name)
+			if isinstance(event, ChangeModeEvent):
+				print("     Message: " + event.name + " (" + event.mode + ")")
+			else:
+				print("     Message: " + event.name)
 		for listener in self.listeners.keys():
 			# NOTE: If the weakref has died, it will be
 			# automatically removed, so we don't have
@@ -167,7 +170,7 @@ class GameController(Listener):
 		while self.keepGoing:
 			delay = clock.tick(100)
 			if elapsed_frames % 100 == 1:
-				print(delay)
+				pass
 
 			self.evManager.post(TickEvent())
 			elapsed_frames += 1
