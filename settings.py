@@ -12,6 +12,7 @@ ROAD_COLOR = (80, 80, 80)
 ROAD_WIDTH = 50
 
 # Level Editing
+DIST_SELECT_POINT = 40
 CROSSING_ROAD_COLOR = (150, 100, 100)
 
 # Lidar View
