@@ -1,6 +1,6 @@
 import pygame
 from Lidar import Lidar
-from tools import *
+from Tools import *
 
 
 class Car:

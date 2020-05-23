@@ -77,3 +77,17 @@ class EventManager:
 			# automatically removed, so we don't have
 			# to worry about it.
 			listener.notify(event)
+
+
+class Listener:
+
+	def __init__(self, evManager):
+		self.evManager = evManager
+		if self.evManager is not None:
+			self.evManager.register_listener(self)
+
+	def post(self, event):
+		self.evManager.post(event)
+
+	def notify(self, event):
+		pass

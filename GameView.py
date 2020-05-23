@@ -1,112 +1,80 @@
+import Event
 import pygame
-import settings
-from tools import *
-from Car import Car
-from pygame.locals import *
-
-# Keyboard
-UP = 'up'
-LEFT = 'left'
-RIGHT = 'right'
-DOWN = 'down'
-direction = None
+import Settings
+from Game import Mode
+import math
 
 
-def on_press(direction, vect):
-	if direction:
-		if direction == K_UP:
-			vect[1] -= 1
+class GameView(Event.Listener):
 
-		elif direction == K_DOWN:
-			vect[1] += 1
+	def __init__(self, game, evManager):
+		super().__init__(evManager)
 
-		if direction == K_LEFT:
-			vect[0] -= 1
+		pygame.init()
 
-		elif direction == K_RIGHT:
-			vect[0] += 1
-
-
-class GameUI:
-
-	def __init__(self):
 		# Create the screen
-		self.screen = pygame.display.set_mode((settings.WIDTH, settings.HEIGHT))
-		# screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.FULLSCREEN) #  For the final version
+		self.screen = pygame.display.set_mode((Settings.WIDTH, Settings.HEIGHT))
+		# screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN) #  TODO: For the final version
 
 		# Title and Icon
 		pygame.display.set_caption("Taxi Agent")
 		icon = pygame.image.load("taxi.png")
 		pygame.display.set_icon(icon)
 
-		# Taxi taxi
-		self.taxi = Car("car.png", 0, 0)
-		self.exit = False
+		self.game = game
+
+	def notify(self, event):
+		if isinstance(event, Event.TickEvent):
+			self.draw_background()
+
+			if self.game.mode == Mode.PLAY_MODE:
+				self.play_mode()
+			elif self.game.mode == Mode.POINT_EDITING:
+				self.point_editing()
+			elif self.game.mode == Mode.LINE_EDITING:
+				self.line_editing()
+
+			# Always update the display at the end of the loop
+			pygame.display.update()
 
 	def draw_background(self):
-		self.screen.fill(settings.GRASS_COLOR)
+		self.screen.fill(Settings.GRASS_COLOR)
 
-	def point_editing(self, points):
-		mouseX, mouseY = pygame.mouse.get_pos()
-
-		spaceAvailable = True
-		for position in points:
-			radius = settings.MIN_DIST_POINTS
-			transparent_circle = pygame.Surface((settings.WIDTH, settings.HEIGHT), pygame.SRCALPHA)
+	def point_editing(self):
+		for position in self.game.map.points:
+			radius = Settings.MIN_DIST_POINTS
+			transparent_circle = pygame.Surface((Settings.WIDTH, Settings.HEIGHT), pygame.SRCALPHA)
 			pygame.draw.circle(transparent_circle, (150, 150, 150, 50), (radius * 2, radius * 2), radius - 2)
 			pygame.draw.circle(transparent_circle, (200, 200, 200, 50), (radius * 2, radius * 2), radius, 2)
 			self.screen.blit(transparent_circle, (position[0] - radius * 2, position[1] - radius * 2))
 			pygame.draw.circle(self.screen, (100, 150, 255), position, 10)
 
-			if math.hypot(position[0] - mouseX, position[1] - mouseY) <= settings.MIN_DIST_POINTS:
-				spaceAvailable = False
+		mouse = pygame.mouse.get_pos()
+		if self.game.map.is_space_available(mouse):
+			pygame.draw.circle(self.screen, (150, 150, 150), mouse, 8)
+			pygame.draw.circle(self.screen, (200, 200, 200), mouse, 10, 2)
+		else:
+			pygame.draw.circle(self.screen, (150, 100, 100), mouse, 8)
+			pygame.draw.circle(self.screen, (200, 150, 150), mouse, 10, 2)
 
-		# If the mouse is in the window
-		if pygame.mouse.get_focused():
-			if spaceAvailable:
-				pygame.draw.circle(self.screen, (150, 150, 150), (mouseX, mouseY), 8)
-				pygame.draw.circle(self.screen, (200, 200, 200), (mouseX, mouseY), 10, 2)
-			else:
-				pygame.draw.circle(self.screen, (150, 100, 100), (mouseX, mouseY), 8)
-				pygame.draw.circle(self.screen, (200, 150, 150), (mouseX, mouseY), 10, 2)
-
-			# Add a new point
-			if pygame.mouse.get_pressed()[0] and spaceAvailable:
-				points.append((mouseX, mouseY))
-
-	def line_editing(self, points, lines, startingPoint, endingPoint):
-		mouseX, mouseY = pygame.mouse.get_pos()
-
-		for position in points:
-			radius = int(settings.ROAD_WIDTH / 2)
-			transparent_circle = pygame.Surface((settings.WIDTH, settings.HEIGHT), pygame.SRCALPHA)
+	def line_editing(self):
+		for position in self.game.map.points:
+			radius = int(Settings.ROAD_WIDTH / 2)
+			transparent_circle = pygame.Surface((Settings.WIDTH, Settings.HEIGHT), pygame.SRCALPHA)
 			pygame.draw.circle(transparent_circle, (150, 150, 150, 50), (radius, radius), radius - 2)
 			pygame.draw.circle(transparent_circle, (200, 200, 200, 50), (radius, radius), radius, 2)
 			self.screen.blit(transparent_circle, (position[0] - radius, position[1] - radius))
-			pygame.draw.circle(self.screen, settings.ROAD_COLOR, position, 10)
+			pygame.draw.circle(self.screen, Settings.ROAD_COLOR, position, 10)
 
-		crossing = False
-		for line in lines:
-			self.draw_line(line, settings.ROAD_COLOR, 20)
+		for line in self.game.map.lines:
+			self.draw_line(line, Settings.ROAD_COLOR, 20)
 
-			if startingPoint is not None and is_line_crossing(line, (startingPoint, (mouseX, mouseY))):
-				crossing = True
-
-		if startingPoint is not None:
-			line_to_mouse = (startingPoint, (mouseX, mouseY))
-			if crossing:
-				self.draw_line(line_to_mouse, settings.CROSSING_ROAD_COLOR, 20)
+		line_to_mouse = self.game.map.get_building_line()
+		if line_to_mouse is not None:
+			if self.game.map.is_crossing(line_to_mouse):
+				self.draw_line(line_to_mouse, Settings.CROSSING_ROAD_COLOR, 20)
 			else:
-				self.draw_line(line_to_mouse, settings.ROAD_COLOR, 20)
-
-		# Add a new line
-		if endingPoint is not None:
-			lines.append([startingPoint, endingPoint])
-
-			startingPoint = None
-			endingPoint = None
-
-		return startingPoint, endingPoint
+				self.draw_line(line_to_mouse, Settings.ROAD_COLOR, 20)
 
 	def draw_line(self, line, color, width):
 		pos1, pos2 = line
@@ -128,32 +96,20 @@ class GameUI:
 				  y2 + int(width / 2 * math.sin(angle + math.pi / 2)))
 		pygame.draw.polygon(self.screen, color, [point1, point2, point3, point4])
 
-	def game(self, points, lines):
+	def play_mode(self):
 		# Draw the roads
-		global direction
-		radius = int(settings.ROAD_WIDTH / 2)
-		for position in points:
-			pygame.draw.circle(self.screen, settings.ROAD_COLOR, position, radius)
+		for position in self.game.map.points:
+			pygame.draw.circle(self.screen, Settings.ROAD_COLOR, position, int(Settings.ROAD_WIDTH / 2))
 
-		for line in lines:
-			self.draw_line(line, settings.ROAD_COLOR, settings.ROAD_WIDTH)
+		for line in self.game.map.lines:
+			self.draw_line(line, Settings.ROAD_COLOR, Settings.ROAD_WIDTH)
 
-		# Update the game
-		self.update()
-
-		# Draw the taxi
-		self.draw_car()
-		if settings.DEBUG:
-			self.draw_lidar()
-			self.draw_lidar_points()
-		self.draw_view((10, 10))
-
-		for event in pygame.event.get():
-			if event.type == KEYDOWN:
-				direction = event.key
-			if event.type == KEYUP:
-				if event.key == direction:
-					direction = None
+		# # Draw the taxi
+		# self.draw_car()
+		# if Settings.DEBUG:
+		# 	self.draw_lidar()
+		# 	self.draw_lidar_points()
+		# self.draw_view((10, 10))
 
 	def update(self):
 		car = self.taxi
@@ -206,13 +162,13 @@ class GameUI:
 		lidar = self.taxi.lidar
 
 		x, y = pos
-		border_size = settings.LIDAR_VIEW_BORDER_SIZE
-		square_size = settings.LIDAR_VIEW_SQUARE_SIZE
+		border_size = Settings.LIDAR_VIEW_BORDER_SIZE
+		square_size = Settings.LIDAR_VIEW_SQUARE_SIZE
 
 		border = pygame.rect.Rect(x, y,
 								  lidar.col * square_size + border_size * 2,
 								  lidar.row * square_size + border_size * 2)
-		pygame.draw.rect(self.screen, settings.LIDAR_VIEW_BORDER_COLOR, border)
+		pygame.draw.rect(self.screen, Settings.LIDAR_VIEW_BORDER_COLOR, border)
 		x += border_size
 		y += border_size
 		for i in range(lidar.row):
@@ -220,9 +176,9 @@ class GameUI:
 				square = pygame.rect.Rect(j * square_size + x, i * square_size + y, square_size, square_size)
 
 				if lidar.matrix[i][j] == 0:
-					pygame.draw.rect(self.screen, settings.LIDAR_VIEW_GRASS, square)
+					pygame.draw.rect(self.screen, Settings.LIDAR_VIEW_GRASS, square)
 				else:
-					pygame.draw.rect(self.screen, settings.LIDAR_VIEW_ROAD, square)
+					pygame.draw.rect(self.screen, Settings.LIDAR_VIEW_ROAD, square)
 
 	def draw_lidar(self):
 		pos = self.taxi.position
@@ -238,7 +194,7 @@ class GameUI:
 		back_left = get_point_at_vector(back, lidar.width / 2, angle - math.pi / 2)
 
 		lidar_corners = [front_left, back_left, back_right, front_right]
-		pygame.draw.lines(self.screen, settings.LIDAR_BOX_COLOR, True, lidar_corners)
+		pygame.draw.lines(self.screen, Settings.LIDAR_BOX_COLOR, True, lidar_corners)
 
 	def draw_lidar_points(self):
 		pos = self.taxi.position
@@ -253,7 +209,7 @@ class GameUI:
 		for i in range(len(lidar.matrix)):
 			first_of_line = current
 			for j in range(len(lidar.matrix[i])):
-				pygame.draw.circle(self.screen, settings.LIDAR_POINTS_COLOR, (int(current.x), int(current.y)), 3)
+				pygame.draw.circle(self.screen, Settings.LIDAR_POINTS_COLOR, (int(current.x), int(current.y)), 3)
 
 				current = get_point_at_vector(current, lidar.width / (lidar.col - 1), math.pi / 2 + angle)
 			current = get_point_at_vector(first_of_line, lidar.length / (lidar.row - 1), math.pi + angle)
@@ -271,19 +227,19 @@ class GameUI:
 		back_left = get_point_at_vector(back, car.width / 2, angle - math.pi / 2)
 
 		on_grass = False
-		if self.screen.get_at((int(front_left.x), int(front_left.y))) == settings.GRASS_COLOR:
+		if self.screen.get_at((int(front_left.x), int(front_left.y))) == Settings.GRASS_COLOR:
 			on_grass = True
-		elif self.screen.get_at((int(front_right.x), int(front_right.y))) == settings.GRASS_COLOR:
+		elif self.screen.get_at((int(front_right.x), int(front_right.y))) == Settings.GRASS_COLOR:
 			on_grass = True
-		elif self.screen.get_at((int(back_left.x), int(back_left.y))) == settings.GRASS_COLOR:
+		elif self.screen.get_at((int(back_left.x), int(back_left.y))) == Settings.GRASS_COLOR:
 			on_grass = True
-		elif self.screen.get_at((int(back_right.x), int(back_right.y))) == settings.GRASS_COLOR:
+		elif self.screen.get_at((int(back_right.x), int(back_right.y))) == Settings.GRASS_COLOR:
 			on_grass = True
 
 		# Draw the hitbox of the car
-		if settings.DEBUG:
+		if Settings.DEBUG:
 			lidar_corners = [front_left, back_left, back_right, front_right]
-			pygame.draw.lines(self.screen, settings.CAR_HITBOX_COLOR, True, lidar_corners)
+			pygame.draw.lines(self.screen, Settings.CAR_HITBOX_COLOR, True, lidar_corners)
 
 		return on_grass
 

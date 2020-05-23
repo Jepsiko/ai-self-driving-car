@@ -1,6 +1,6 @@
 import numpy as np
-import settings
-from tools import *
+import Settings
+from Tools import *
 
 
 class Lidar:
@@ -26,11 +26,11 @@ class Lidar:
 				try:
 					color_current = screen.get_at((int(current.x), int(current.y)))
 				except IndexError:  # If the current point is out of the screen
-					color_current = settings.GRASS_COLOR
+					color_current = Settings.GRASS_COLOR
 
-				if color_current == settings.GRASS_COLOR:
+				if color_current == Settings.GRASS_COLOR:
 					self.matrix[i][j] = 0
-				elif color_current == settings.ROAD_COLOR:
+				elif color_current == Settings.ROAD_COLOR:
 					self.matrix[i][j] = 1
 				else:
 					self.matrix[i][j] = 1
