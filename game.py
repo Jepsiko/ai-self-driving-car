@@ -10,44 +10,44 @@ class Event:
 	object and sent to the EventManager"""
 
 	def __init__(self):
-		self.name = "Generic Event"
+		self.name = 'Generic Event'
 
 
 class QuitEvent(Event):
 	def __init__(self):
 		super().__init__()
-		self.name = "Quit Event"
+		self.name = 'Quit Event'
 
 
 class TickEvent(Event):
 	def __init__(self):
 		super().__init__()
-		self.name = "Tick Event"
+		self.name = 'Tick Event'
 
 
 class LeftClicPressedEvent(Event):
 	def __init__(self):
 		super().__init__()
-		self.name = "Left Clic Event"
+		self.name = 'Left Clic Event'
 
 
 class RightClicPressedEvent(Event):
 	def __init__(self):
 		super().__init__()
-		self.name = "Right Clic Event"
+		self.name = 'Right Clic Event'
 
 
 class ChangeModeEvent(Event):
 	def __init__(self, mode):
 		super().__init__()
-		self.name = "Change Mode Event"
+		self.name = 'Change Mode Event'
 		self.mode = mode
 
 
 class ToggleDebugEvent(Event):
 	def __init__(self):
 		super().__init__()
-		self.name = "Toggle Debug Event"
+		self.name = 'Toggle Debug Event'
 
 
 class EventManager:
@@ -69,9 +69,9 @@ class EventManager:
 	def post(self, event):
 		if not isinstance(event, TickEvent):
 			if isinstance(event, ChangeModeEvent):
-				print("     Message: " + event.name + " (" + event.mode + ")")
+				print('     Message: ' + event.name + ' (' + event.mode + ')')
 			else:
-				print("     Message: " + event.name)
+				print('     Message: ' + event.name)
 		for listener in self.listeners.keys():
 			# NOTE: If the weakref has died, it will be
 			# automatically removed, so we don't have
@@ -98,8 +98,11 @@ class Map(Listener):
 		self.startingPoint = None
 		self.endingPoint = None
 		self.crossing = False
+
 		self.points = []
 		self.lines = []
+
+		self.graph = None
 
 
 class KeyboardController(Listener):
@@ -127,15 +130,15 @@ class KeyboardController(Listener):
 
 					# "P" to enter Point editing mode
 					if event.key == pygame.K_p:
-						ev = ChangeModeEvent("Point Editing")
+						ev = ChangeModeEvent('Point Editing')
 
 					# "L" to enter Line editing mode
 					if event.key == pygame.K_l:
-						ev = ChangeModeEvent("Line Editing")
+						ev = ChangeModeEvent('Line Editing')
 
 					# "F" to Finish editing
 					if event.key == pygame.K_f:
-						ev = ChangeModeEvent("Play Mode")
+						ev = ChangeModeEvent('Play Mode')
 
 					# "D" to enter Debug mode
 					if event.key == pygame.K_d:
@@ -256,10 +259,6 @@ if __name__ == "__main__":
 	backgroundColor = (20, 60, 20)
 	roadColor = (100, 100, 100)
 	roadWidth = 50
-
-	# Reward gates
-	rewardGates = []
-	spaceBetweenGates = 50
 
 	# Graph creation
 	graph = None
