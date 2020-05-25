@@ -45,7 +45,7 @@ class InputController(Event.Listener):
 						ev = Event.RemovingEvent()
 
 				if ev is not None:
-					self.post(ev)
+					self.evManager.post(ev)
 
 
 class Player(Event.Listener):

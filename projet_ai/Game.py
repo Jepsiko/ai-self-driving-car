@@ -261,19 +261,16 @@ class GameController(Event.Listener):
 
 	def run(self):
 		clock = pygame.time.Clock()
-		get_ticks_last_frame = 0
 		while self.keepGoing:
-			print('tick')
 
-			t = pygame.time.get_ticks()
-			delta_time = (t - get_ticks_last_frame) / 1000.0
-			get_ticks_last_frame = t
-
-			self.post(Event.TickEvent(delta_time))
+			self.evManager.post(Event.TickEvent())
 
 			clock.tick(10)
 
 		pygame.quit()
+
+	def step(self):
+		pass
 
 	def notify(self, event):
 		if isinstance(event, Event.QuitEvent):
@@ -317,9 +314,6 @@ class Game(Event.Listener):
 
 		print('Press P to edit points, L to edit lines, F when you\'ve finished, D for debug and ESC to quit')
 
-	def start(self):
-		pass
-
 	def notify(self, event):
 		if isinstance(event, Event.ChangeModeEvent):
 			self.mode = event.mode
@@ -327,7 +321,7 @@ class Game(Event.Listener):
 				self.map.build()
 				self.character.set_position(self.map.get_point(0))
 
-		elif isinstance(event, Event.LeftClicPressedEvent):
+		elif isinstance(event, Event.CreationEvent):
 			# Point creation
 			if self.mode == Mode.POINT_EDITING:
 				self.map.create_point()
@@ -336,7 +330,7 @@ class Game(Event.Listener):
 			elif self.mode == Mode.LINE_EDITING:
 				self.map.create_line()
 
-		elif isinstance(event, Event.RightClicPressedEvent):
+		elif isinstance(event, Event.RemovingEvent):
 			# Point removing
 			if self.mode == Mode.POINT_EDITING:
 				self.map.remove_point()

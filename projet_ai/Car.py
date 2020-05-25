@@ -33,7 +33,8 @@ class Car(Event.Listener):
 
 	def notify(self, event):
 		if isinstance(event, Event.TickEvent):
-			self.velocity += (self.acceleration * event.delta_time, 0)
+			delta = pygame.time.Clock().get_time() / 1000
+			self.velocity += (self.acceleration * delta, 0)
 			self.velocity.x = max(-self.max_velocity, min(self.velocity.x, self.max_velocity))
 
 			if self.steering:
@@ -42,15 +43,14 @@ class Car(Event.Listener):
 			else:
 				velocity_angle = 0
 
-			self.position += self.velocity.rotate(-self.angle) * event.delta_time
-			self.angle += math.degrees(velocity_angle) * event.delta_time
+			self.position += self.velocity.rotate(-self.angle) * delta
+			self.angle += math.degrees(velocity_angle) * delta
 
-			self.post(Event.CarUpdatedEvent(self))
+			self.evManager.post(Event.CarUpdatedEvent(self))
 
 	def from_angle(self, angle):
-		# import math
 		rads = math.radians(angle)
-		self.direction = pygame.Vector2(math.sin(rads), math.cos(rads))
+		self.direction = Vector2(math.sin(rads), math.cos(rads))
 
 	def from_vector(self, vector):
 		self.direction = (vector - self.position).normalize()
@@ -60,4 +60,4 @@ class Car(Event.Listener):
 
 	def set_position(self, position):
 		self.position = position
-		self.post(Event.CarUpdatedEvent(self))
+		self.evManager.post(Event.CarUpdatedEvent(self))

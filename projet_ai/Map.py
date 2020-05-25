@@ -41,7 +41,7 @@ class Map(Event.Listener):
 
 	def build(self):
 		self.graph = Graph(self.points, self.lines)
-		self.post(Event.MapUpdatedEvent(self))
+		self.evManager.post(Event.MapUpdatedEvent(self))
 		return self.graph
 
 	def get_point(self, i):
