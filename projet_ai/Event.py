@@ -60,6 +60,14 @@ class RemovingEvent(Event):
         self.name = 'Removing Event'
 
 
+class MovePlayerEvent(Event):
+    def __init__(self, acceleration, throttle):
+        super().__init__()
+        self.name = 'Move Player Event'
+        self.acceleration = acceleration
+        self.throttle = throttle
+
+
 class EventManager:
     """this object is responsible for coordinating most communication
     between the Model, View, and Controller."""
@@ -81,6 +89,8 @@ class EventManager:
 
             if isinstance(event, ChangeModeEvent):
                 print(' (' + str(event.mode) + ')')
+            elif isinstance(event, MovePlayerEvent):
+                print(' (' + str(event.acceleration) + ', ' + str(event.throttle) + ')')
             else:
                 print()
 

@@ -35,6 +35,18 @@ class InputController(Event.Listener):
 					elif event.key == Settings.KEY_TOGGLE_DEBUG:
 						ev = Event.ToggleDebugEvent()
 
+					elif event.key == Settings.KEY_MOVE_FRONT:
+						ev = Event.MovePlayerEvent(1, 0)
+
+					elif event.key == Settings.KEY_MOVE_BACK:
+						ev = Event.MovePlayerEvent(-1, 0)
+
+					elif event.key == Settings.KEY_MOVE_LEFT:
+						ev = Event.MovePlayerEvent(0, -1)
+
+					elif event.key == Settings.KEY_MOVE_RIGHT:
+						ev = Event.MovePlayerEvent(0, -1)
+
 				# If mouse is pressed
 				elif event.type == pygame.MOUSEBUTTONDOWN:
 
@@ -50,5 +62,6 @@ class InputController(Event.Listener):
 
 class Player(Event.Listener):
 
-	def __init__(self, evManager):
+	def __init__(self, use_ai, evManager):
 		super().__init__(evManager)
+		self.use_ai = use_ai

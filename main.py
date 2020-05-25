@@ -2,7 +2,7 @@ from projet_ai.Env import Env
 
 
 def main():
-	env = Env('Taxi Agent')
+	env = Env('Taxi Agent Editor')
 	env.run()
 
 	# obs = env.reset()

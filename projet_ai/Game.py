@@ -111,10 +111,10 @@ class GameView(Event.Listener):
 		if self.character is not None:
 			self.draw_car()
 
-			# if Settings.DEBUG:
-			# 	self.draw_lidar()
-			# 	self.draw_lidar_points()
-			# self.draw_view((10, 10))
+			if Settings.DEBUG:
+				self.draw_lidar()
+				self.draw_lidar_points()
+			self.draw_view((10, 10))
 
 	def update(self):
 		car = self.taxi

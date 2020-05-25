@@ -48,6 +48,10 @@ class Car(Event.Listener):
 
 			self.evManager.post(Event.CarUpdatedEvent(self))
 
+		elif isinstance(event, Event.MovePlayerEvent):
+			self.acceleration = event.acceleration
+			self.steering = event.throttle
+
 	def from_angle(self, angle):
 		rads = math.radians(angle)
 		self.direction = Vector2(math.sin(rads), math.cos(rads))

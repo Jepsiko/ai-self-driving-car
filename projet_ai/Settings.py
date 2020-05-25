@@ -31,12 +31,16 @@ LIDAR_BOX_COLOR = (200, 0, 0)
 LIDAR_POINTS_COLOR = (0, 255, 0)
 
 # Keyboard Commands
-KEY_QUIT = pygame.K_ESCAPE      # ESC
-KEY_POINT_EDITING = pygame.K_p  # P
-KEY_LINE_EDITING = pygame.K_l   # L
-KEY_PLAY_MODE = pygame.K_f      # F
-KEY_TOGGLE_DEBUG = pygame.K_d   # D
+KEY_QUIT = pygame.K_ESCAPE          # ESC
+KEY_POINT_EDITING = pygame.K_p      # P
+KEY_LINE_EDITING = pygame.K_l       # L
+KEY_PLAY_MODE = pygame.K_f          # F
+KEY_TOGGLE_DEBUG = pygame.K_d       # D
+KEY_MOVE_FRONT = pygame.K_UP        # UP
+KEY_MOVE_BACK = pygame.K_DOWN       # DOWN
+KEY_MOVE_LEFT = pygame.K_LEFT       # LEFT
+KEY_MOVE_RIGHT = pygame.K_RIGHT     # RIGHT
 
 # Mouse Commands
-MOUSE_CREATE = 1                # Left clic pressed
-MOUSE_REMOVE = 3                # Right clic pressed
+MOUSE_CREATE = 1                    # LEFT CLIC
+MOUSE_REMOVE = 3                    # RIGHT CLIC
