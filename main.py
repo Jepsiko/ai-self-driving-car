@@ -1,17 +1,15 @@
-import Event
-import Game
-import GameView
+from projet_ai.Env import Env
 
 
 def main():
-	evManager = Event.EventManager()
-
-	inputController = Game.InputController(evManager)
-	game = Game.Game(evManager)
-	gameController = Game.GameController(evManager)
-	gameView = GameView.GameView(game, evManager)
-
-	gameController.run()
+	env = Env('Taxi Agent')
+	env.run()
+	obs = env.reset()
+	done = False
+	while not done:
+		action = None
+		new_state, reward, done, info = env.step(action)
+		obs = new_state
 
 
 if __name__ == "__main__":

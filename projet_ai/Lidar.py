@@ -1,6 +1,6 @@
 import numpy as np
-import Settings
-from Tools import *
+import math
+from projet_ai import Settings, Tools
 
 
 class Lidar:
@@ -15,8 +15,8 @@ class Lidar:
 		self.back_length = back_length
 
 	def update(self, screen, pos, angle):
-		front = get_point_at_vector(pos, self.length - self.back_length, angle)
-		front_left = get_point_at_vector(front, self.width / 2, angle - math.pi / 2)
+		front = Tools.get_point_at_vector(pos, self.length - self.back_length, angle)
+		front_left = Tools.get_point_at_vector(front, self.width / 2, angle - math.pi / 2)
 
 		current = front_left
 
@@ -35,5 +35,5 @@ class Lidar:
 				else:
 					self.matrix[i][j] = 1
 
-				current = get_point_at_vector(current, self.width / (self.col - 1), math.pi / 2 + angle)
-			current = get_point_at_vector(first_of_line, self.length / (self.row - 1), math.pi + angle)
+				current = Tools.get_point_at_vector(current, self.width / (self.col - 1), math.pi / 2 + angle)
+			current = Tools.get_point_at_vector(first_of_line, self.length / (self.row - 1), math.pi + angle)

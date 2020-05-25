@@ -1,8 +1,6 @@
 import pygame
-import Event
 import math
-import Settings
-import Tools
+from projet_ai import Tools, Event, Settings
 
 
 class Graph:
@@ -45,6 +43,9 @@ class Map(Event.Listener):
 		self.graph = Graph(self.points, self.lines)
 		self.post(Event.MapUpdatedEvent(self))
 		return self.graph
+
+	def get_point(self, i):
+		return self.points[i]
 
 	def create_point(self):
 		# Add a new point

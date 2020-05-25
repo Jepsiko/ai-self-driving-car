@@ -1,8 +1,7 @@
-import Event
+from projet_ai import Event, Settings, Tools
 import pygame
-import Settings
-from Game import Mode
 import math
+from pygame import Vector2
 
 
 class GameView(Event.Listener):
@@ -22,6 +21,7 @@ class GameView(Event.Listener):
 		pygame.display.set_icon(icon)
 
 		self.game = game
+		self.character = None
 
 	def notify(self, event):
 		if isinstance(event, Event.TickEvent):
@@ -36,6 +36,9 @@ class GameView(Event.Listener):
 
 			# Always update the display at the end of the loop
 			pygame.display.update()
+
+		elif isinstance(event, Event.CarUpdatedEvent):
+			self.character = event.car
 
 	def draw_background(self):
 		self.screen.fill(Settings.GRASS_COLOR)
@@ -104,12 +107,14 @@ class GameView(Event.Listener):
 		for line in self.game.map.lines:
 			self.draw_line(line, Settings.ROAD_COLOR, Settings.ROAD_WIDTH)
 
-		# # Draw the taxi
-		# self.draw_car()
-		# if Settings.DEBUG:
-		# 	self.draw_lidar()
-		# 	self.draw_lidar_points()
-		# self.draw_view((10, 10))
+		# Draw the taxi
+		if self.character is not None:
+			self.draw_car()
+
+			# if Settings.DEBUG:
+			# 	self.draw_lidar()
+			# 	self.draw_lidar_points()
+			# self.draw_view((10, 10))
 
 	def update(self):
 		car = self.taxi
@@ -151,7 +156,7 @@ class GameView(Event.Listener):
 		car.lidar.update(self.screen, car.position, -math.radians(car.angle))
 
 	def draw_car(self):
-		car = self.taxi
+		car = self.character
 
 		rotated = pygame.transform.rotate(car.image, car.angle)
 		rect = rotated.get_rect(center=car.position)
@@ -159,7 +164,7 @@ class GameView(Event.Listener):
 		self.screen.blit(rotated, rect)
 
 	def draw_view(self, pos):
-		lidar = self.taxi.lidar
+		lidar = self.character.lidar
 
 		x, y = pos
 		border_size = Settings.LIDAR_VIEW_BORDER_SIZE
@@ -181,28 +186,28 @@ class GameView(Event.Listener):
 					pygame.draw.rect(self.screen, Settings.LIDAR_VIEW_ROAD, square)
 
 	def draw_lidar(self):
-		pos = self.taxi.position
-		angle = -math.radians(self.taxi.angle)
-		lidar = self.taxi.lidar
+		pos = self.character.position
+		angle = -math.radians(self.character.angle)
+		lidar = self.character.lidar
 
-		front = get_point_at_vector(pos, lidar.length - lidar.back_length, angle)
-		front_right = get_point_at_vector(front, lidar.width / 2, math.pi / 2 + angle)
-		front_left = get_point_at_vector(front, lidar.width / 2, angle - math.pi / 2)
+		front = Tools.get_point_at_vector(pos, lidar.length - lidar.back_length, angle)
+		front_right = Tools.get_point_at_vector(front, lidar.width / 2, math.pi / 2 + angle)
+		front_left = Tools.get_point_at_vector(front, lidar.width / 2, angle - math.pi / 2)
 
-		back = get_point_at_vector(pos, lidar.back_length, math.pi + angle)
-		back_right = get_point_at_vector(back, lidar.width / 2, math.pi / 2 + angle)
-		back_left = get_point_at_vector(back, lidar.width / 2, angle - math.pi / 2)
+		back = Tools.get_point_at_vector(pos, lidar.back_length, math.pi + angle)
+		back_right = Tools.get_point_at_vector(back, lidar.width / 2, math.pi / 2 + angle)
+		back_left = Tools.get_point_at_vector(back, lidar.width / 2, angle - math.pi / 2)
 
 		lidar_corners = [front_left, back_left, back_right, front_right]
 		pygame.draw.lines(self.screen, Settings.LIDAR_BOX_COLOR, True, lidar_corners)
 
 	def draw_lidar_points(self):
-		pos = self.taxi.position
-		angle = -math.radians(self.taxi.angle)
-		lidar = self.taxi.lidar
+		pos = self.character.position
+		angle = -math.radians(self.character.angle)
+		lidar = self.character.lidar
 
-		front = get_point_at_vector(pos, lidar.length - lidar.back_length, angle)
-		front_left = get_point_at_vector(front, lidar.width / 2, angle - math.pi / 2)
+		front = Tools.get_point_at_vector(pos, lidar.length - lidar.back_length, angle)
+		front_left = Tools.get_point_at_vector(front, lidar.width / 2, angle - math.pi / 2)
 
 		current = front_left
 
@@ -211,20 +216,20 @@ class GameView(Event.Listener):
 			for j in range(len(lidar.matrix[i])):
 				pygame.draw.circle(self.screen, Settings.LIDAR_POINTS_COLOR, (int(current.x), int(current.y)), 3)
 
-				current = get_point_at_vector(current, lidar.width / (lidar.col - 1), math.pi / 2 + angle)
-			current = get_point_at_vector(first_of_line, lidar.length / (lidar.row - 1), math.pi + angle)
+				current = Tools.get_point_at_vector(current, lidar.width / (lidar.col - 1), math.pi / 2 + angle)
+			current = Tools.get_point_at_vector(first_of_line, lidar.length / (lidar.row - 1), math.pi + angle)
 
 	def is_on_grass(self):
-		angle = -math.radians(self.taxi.angle)
-		car = self.taxi
+		angle = -math.radians(self.character.angle)
+		car = self.character
 
-		front = get_point_at_vector(car.position, car.length / 2, angle)
-		front_right = get_point_at_vector(front, car.width / 2, math.pi / 2 + angle)
-		front_left = get_point_at_vector(front, car.width / 2, angle - math.pi / 2)
+		front = Tools.get_point_at_vector(car.position, car.length / 2, angle)
+		front_right = Tools.get_point_at_vector(front, car.width / 2, math.pi / 2 + angle)
+		front_left = Tools.get_point_at_vector(front, car.width / 2, angle - math.pi / 2)
 
-		back = get_point_at_vector(car.position, car.length / 2, math.pi + angle)
-		back_right = get_point_at_vector(back, car.width / 2, math.pi / 2 + angle)
-		back_left = get_point_at_vector(back, car.width / 2, angle - math.pi / 2)
+		back = Tools.get_point_at_vector(car.position, car.length / 2, math.pi + angle)
+		back_right = Tools.get_point_at_vector(back, car.width / 2, math.pi / 2 + angle)
+		back_left = Tools.get_point_at_vector(back, car.width / 2, angle - math.pi / 2)
 
 		on_grass = False
 		if self.screen.get_at((int(front_left.x), int(front_left.y))) == Settings.GRASS_COLOR:
@@ -244,4 +249,98 @@ class GameView(Event.Listener):
 		return on_grass
 
 	def change_car_position(self, position):
-		self.taxi.position = position
+		self.character.position = position
+
+
+class GameController(Event.Listener):
+
+	def __init__(self, evManager):
+		super().__init__(evManager)
+
+		self.keepGoing = 1
+
+	def run(self):
+		clock = pygame.time.Clock()
+		get_ticks_last_frame = 0
+		while self.keepGoing:
+			print('tick')
+
+			t = pygame.time.get_ticks()
+			delta_time = (t - get_ticks_last_frame) / 1000.0
+			get_ticks_last_frame = t
+
+			self.post(Event.TickEvent(delta_time))
+
+			clock.tick(10)
+
+		pygame.quit()
+
+	def notify(self, event):
+		if isinstance(event, Event.QuitEvent):
+			self.keepGoing = 0
+
+		elif isinstance(event, Event.ToggleDebugEvent):
+			Settings.DEBUG = not Settings.DEBUG
+
+
+class Mode:
+	PLAY_MODE = 0
+	POINT_EDITING = 1
+	LINE_EDITING = 2
+
+	def __init__(self, mode):
+		self.mode = mode
+
+	def __eq__(self, other_mode):
+		return self.mode == other_mode
+
+	def __str__(self):
+		if self.mode == Mode.PLAY_MODE:
+			return 'Play Mode'
+		elif self.mode == Mode.POINT_EDITING:
+			return 'Point Editing Mode'
+		elif self.mode == Mode.LINE_EDITING:
+			return 'Line Editing Mode'
+		else:
+			return 'Mode Error'
+
+
+class Game(Event.Listener):
+
+	def __init__(self, player, character, map_, mode, evManager):
+		super().__init__(evManager)
+
+		self.player = player
+		self.character = character
+		self.map = map_
+		self.mode = mode
+
+		print('Press P to edit points, L to edit lines, F when you\'ve finished, D for debug and ESC to quit')
+
+	def start(self):
+		pass
+
+	def notify(self, event):
+		if isinstance(event, Event.ChangeModeEvent):
+			self.mode = event.mode
+			if self.mode == Mode.PLAY_MODE:
+				self.map.build()
+				self.character.set_position(self.map.get_point(0))
+
+		elif isinstance(event, Event.LeftClicPressedEvent):
+			# Point creation
+			if self.mode == Mode.POINT_EDITING:
+				self.map.create_point()
+
+			# Line creation
+			elif self.mode == Mode.LINE_EDITING:
+				self.map.create_line()
+
+		elif isinstance(event, Event.RightClicPressedEvent):
+			# Point removing
+			if self.mode == Mode.POINT_EDITING:
+				self.map.remove_point()
+
+			# Cancel the new line drawing
+			elif self.mode == Mode.LINE_EDITING:
+				self.map.cancel_line()

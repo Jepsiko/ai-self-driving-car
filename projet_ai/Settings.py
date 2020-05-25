@@ -1,3 +1,4 @@
+import pygame
 
 # Window
 WIDTH = 1366
@@ -10,6 +11,7 @@ MIN_DIST_POINTS = 150
 GRASS_COLOR = (0, 100, 0)
 ROAD_COLOR = (80, 80, 80)
 ROAD_WIDTH = 50
+CAR_IMAGE = 'car.png'
 
 # Level Editing
 DIST_SELECT_POINT = 40
@@ -27,3 +29,14 @@ DEBUG = False
 CAR_HITBOX_COLOR = (0, 0, 200)
 LIDAR_BOX_COLOR = (200, 0, 0)
 LIDAR_POINTS_COLOR = (0, 255, 0)
+
+# Keyboard Commands
+KEY_QUIT = pygame.K_ESCAPE      # ESC
+KEY_POINT_EDITING = pygame.K_p  # P
+KEY_LINE_EDITING = pygame.K_l   # L
+KEY_PLAY_MODE = pygame.K_f      # F
+KEY_TOGGLE_DEBUG = pygame.K_d   # D
+
+# Mouse Commands
+MOUSE_CREATE = 1                # Left clic pressed
+MOUSE_REMOVE = 3                # Right clic pressed
