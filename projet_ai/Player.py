@@ -5,11 +5,6 @@ from pygame import Vector2
 
 class InputController(Event.Listener):
 
-	FRONT = 0
-	BACK = 1
-	LEFT = 2
-	RIGHT = 3
-
 	def __init__(self, evManager):
 		super().__init__(evManager)
 
@@ -17,8 +12,6 @@ class InputController(Event.Listener):
 
 	def notify(self, event):
 		if isinstance(event, Event.TickEvent):
-			direction = Vector2(0, 0)
-
 			for event in pygame.event.get():
 
 				ev = None
@@ -45,31 +38,6 @@ class InputController(Event.Listener):
 					elif event.key == Settings.KEY_TOGGLE_DEBUG:
 						ev = Event.ToggleDebugEvent()
 
-					elif event.key == Settings.KEY_MOVE_FRONT:
-						self.key_maintained[InputController.FRONT] = True
-
-					elif event.key == Settings.KEY_MOVE_BACK:
-						self.key_maintained[InputController.BACK] = True
-
-					elif event.key == Settings.KEY_MOVE_LEFT:
-						self.key_maintained[InputController.LEFT] = True
-
-					elif event.key == Settings.KEY_MOVE_RIGHT:
-						self.key_maintained[InputController.RIGHT] = True
-
-				elif event.type == pygame.KEYUP:
-					if event.key == Settings.KEY_MOVE_FRONT:
-						self.key_maintained[InputController.FRONT] = False
-
-					elif event.key == Settings.KEY_MOVE_BACK:
-						self.key_maintained[InputController.BACK] = False
-
-					elif event.key == Settings.KEY_MOVE_LEFT:
-						self.key_maintained[InputController.LEFT] = False
-
-					elif event.key == Settings.KEY_MOVE_RIGHT:
-						self.key_maintained[InputController.RIGHT] = False
-
 				# If mouse is pressed
 				elif event.type == pygame.MOUSEBUTTONDOWN:
 
@@ -82,16 +50,20 @@ class InputController(Event.Listener):
 				if ev is not None:
 					self.evManager.post(ev)
 
-			if self.key_maintained[InputController.FRONT]:
+			# Keyboard inputs that has to be maintained
+			key_pressed = pygame.key.get_pressed()
+			direction = Vector2(0, 0)
+
+			if key_pressed[Settings.KEY_MOVE_FRONT]:
 				direction += Vector2(1, 0)
 
-			if self.key_maintained[InputController.BACK]:
+			if key_pressed[Settings.KEY_MOVE_BACK]:
 				direction += Vector2(-1, 0)
 
-			if self.key_maintained[InputController.LEFT]:
+			if key_pressed[Settings.KEY_MOVE_LEFT]:
 				direction += Vector2(0, -1)
 
-			if self.key_maintained[InputController.RIGHT]:
+			if key_pressed[Settings.KEY_MOVE_RIGHT]:
 				direction += Vector2(0, 1)
 
 			self.evManager.post(Event.MovePlayerEvent(direction))

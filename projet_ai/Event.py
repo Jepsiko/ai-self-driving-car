@@ -83,7 +83,9 @@ class EventManager:
             del self.listeners[listener]
 
     def post(self, event):
-        if not isinstance(event, TickEvent) and not isinstance(event, CarUpdatedEvent):
+        if not isinstance(event, TickEvent) and \
+                not isinstance(event, CarUpdatedEvent) and \
+                not isinstance(event, MovePlayerEvent):
             print('Message: ' + event.name, end='')
 
             if isinstance(event, ChangeModeEvent):

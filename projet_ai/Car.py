@@ -16,7 +16,6 @@ class Car(Event.Listener):
 		self.position = Vector2(0, 0)
 		self.lidar = Lidar(7, 6)
 
-		self.speed = Vector2(0.1, 0.12)
 		self.direction = Vector2(0, 0)
 
 		self.angle = 0
