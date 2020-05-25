@@ -39,6 +39,7 @@ class GameUI:
 		pygame.display.set_caption("Taxi Agent")
 		icon = pygame.image.load("taxi.png")
 		pygame.display.set_icon(icon)
+		self.clock = pygame.time.Clock()
 
 		# Taxi taxi
 		self.taxi = Car("car.png", 0, 0)
@@ -158,7 +159,8 @@ class GameUI:
 
 	def update(self):
 		car = self.taxi
-		delta = pygame.time.Clock().get_time() / 1000
+		#delta = self.clock.get_time() / 1000.0
+		delta = 0.1
 		ppu = 32
 
 		for event in pygame.event.get():
@@ -201,39 +203,6 @@ class GameUI:
 		car.update(delta)
 
 		#pygame.time.Clock().tick(60)
-		"""
-		keys = pygame.key.get_pressed()
-
-		x = 0
-		y = 0
-
-		# Key board pressed
-		if keys[pygame.K_UP]:
-			# print("up")
-			car.position.y -= 1
-			y -= 1
-
-		if keys[pygame.K_DOWN]:
-			# print("down")
-			car.position.y += 1
-			y += 1
-
-		if keys[pygame.K_LEFT]:
-			# print("gauche")
-			car.position.x -= 1
-			x -= 1
-
-		if keys[pygame.K_RIGHT]:
-			# print("droite")
-			car.position.x += 1
-			x += 1
-
-		if x == 0 and y == 0:
-			car.direction = Vector2(x, y)
-
-		else:
-			car.direction = Vector2(x, y).normalize()
-		"""
 		car.lidar.update(self.screen, car.position, -math.radians(car.angle))
 
 	def draw_car(self):
