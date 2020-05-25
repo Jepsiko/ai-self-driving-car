@@ -1,5 +1,6 @@
 import pygame
 from Lidar import Lidar
+from math import sin, radians, degrees, copysign
 from tools import *
 
 
@@ -30,7 +31,7 @@ class Car:
 
 	def update(self, delta):
 		# self.angle -= 0.1
-		"""
+		
 		self.velocity += (self.acceleration * delta,0)
 		self.velocity.x = max(-self.max_velocity, min(self.velocity.x, self.max_velocity))
 
@@ -46,6 +47,7 @@ class Car:
 		self.position.x += self.speed.x * delta * self.direction.x
 		self.position.y += self.speed.y * delta * self.direction.y
 		# self.image.get_rect().topleft = self.position
+		"""
 
 	def from_angle(self, angle):
 		# import math

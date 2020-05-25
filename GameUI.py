@@ -3,6 +3,7 @@ import settings
 from tools import *
 from Car import Car
 from pygame.locals import *
+from math import sin, radians, degrees, copysign
 
 # Keyboard
 UP = 'up'
@@ -158,7 +159,49 @@ class GameUI:
 	def update(self):
 		car = self.taxi
 		delta = pygame.time.Clock().get_time() / 1000
+		ppu = 32
 
+		for event in pygame.event.get():
+			if event.type == pygame.QUIT:
+				self.exit = True
+
+		key_pressed = pygame.key.get_pressed()
+
+		if key_pressed[pygame.K_UP]:
+			if car.velocity.x < 0:
+				car.acceleration = car.brake_deceleration
+			else:
+				car.acceleration += 1 * delta
+		elif key_pressed[pygame.K_DOWN]:
+			if car.velocity.x > 0:
+				car.acceleration = -car.brake_deceleration
+			else:
+				car.acceleration -= 1 * delta
+		elif key_pressed[pygame.K_SPACE]:
+			if abs(car.velocity.x) > delta * car.brake_deceleration:
+				car.acceleration = -copysign(car.brake_deceleration, car.velocity.x)
+			else:
+				car.acceleration = -car.velocity.x / delta
+		else:
+			if abs(car.velocity.x) > delta * car.free_deceleration:
+				car.acceleration = -copysign(car.free_deceleration, car.velocity.x)
+			else:
+				if delta != 0:
+					car.acceleration = -car.velocity.x / delta
+		car.acceleration = max(-car.max_acceleration, min(car.acceleration, car.max_acceleration))
+
+		if key_pressed[pygame.K_RIGHT]:
+			car.steering -= 30 * delta
+		elif key_pressed[pygame.K_LEFT]:
+			car.steering += 30 * delta
+		else:
+			car.steering = 0
+		car.steering = max(-car.max_steering, min(car.steering, car.max_steering))
+
+		car.update(delta)
+
+		#pygame.time.Clock().tick(60)
+		"""
 		keys = pygame.key.get_pressed()
 
 		x = 0
@@ -190,8 +233,7 @@ class GameUI:
 
 		else:
 			car.direction = Vector2(x, y).normalize()
-
-		car.update(delta)
+		"""
 		car.lidar.update(self.screen, car.position, -math.radians(car.angle))
 
 	def draw_car(self):
