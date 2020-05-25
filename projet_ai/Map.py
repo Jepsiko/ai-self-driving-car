@@ -1,6 +1,7 @@
 import pygame
 import math
 from projet_ai import Tools, Event, Settings
+from pygame import Vector2
 
 
 class Graph:
@@ -115,3 +116,15 @@ class Map(Event.Listener):
 	@staticmethod
 	def is_point_selected(point, mouse):
 		return math.hypot(point[0] - mouse[0], point[1] - mouse[1]) <= Settings.DIST_SELECT_POINT
+
+	def is_point_on_road(self, point):
+		for road in self.lines:
+			A, B = road
+
+			if point.distance_to(A) <= Settings.ROAD_WIDTH/2:
+				return True
+
+			if point.distance_to(B) <= Settings.ROAD_WIDTH/2:
+				return True
+
+		return False

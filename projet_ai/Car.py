@@ -1,8 +1,57 @@
 import pygame
-from projet_ai.Lidar import Lidar
 from pygame import Vector2
 import math
-from projet_ai import Event, Tools, Settings
+import numpy as np
+from projet_ai import Event, Tools
+
+
+class Lidar(Event.Listener):
+
+	def __init__(self, evManager, row=5, col=5, width=180, length=150, back_length=50):
+		super().__init__(evManager)
+
+		self.row = row
+		self.col = col
+		self.matrix = np.zeros((row, col), dtype=int)
+		self.width = width
+		self.length = length
+		self.back_length = back_length
+		self.map = None
+
+	def notify(self, event):
+		if isinstance(event, Event.MapUpdatedEvent):
+			self.map = event.map
+
+		elif isinstance(event, Event.CarUpdatedEvent):
+			self.update(event.car.position, event.car.angle)
+
+	def update(self, position, angle):
+		if self.map is None:
+			return
+
+		angle = -angle
+
+		vec = Vector2()
+		vec.from_polar((self.length - self.back_length, angle))
+		front = position + vec
+
+		vec.from_polar((self.width / 2, angle - 90))
+		front_left = front + vec
+
+		current = front_left
+
+		for i in range(len(self.matrix)):
+			first_of_line = Vector2(current)
+			for j in range(len(self.matrix[i])):
+				if self.map.is_point_on_road(current):
+					self.matrix[i][j] = 1
+				else:
+					self.matrix[i][j] = 0
+
+				vec.from_polar((self.width / (self.col - 1), angle + 90))
+				current += vec
+			vec.from_polar((self.length / (self.row - 1), angle + 180))
+			current = first_of_line + vec
 
 
 class Car(Event.Listener):
@@ -14,7 +63,7 @@ class Car(Event.Listener):
 		self.length = self.image.get_rect().width
 
 		self.position = Vector2(0, 0)
-		self.lidar = Lidar(7, 6)
+		self.lidar = Lidar(evManager, 7, 6)
 
 		self.direction = Vector2(0, 0)
 
@@ -29,6 +78,8 @@ class Car(Event.Listener):
 
 		self.brake_deceleration = 90
 		self.free_deceleration = 30
+
+		self.map = None
 
 	def notify(self, event):
 		if isinstance(event, Event.MovePlayerEvent):
@@ -70,6 +121,9 @@ class Car(Event.Listener):
 
 			self.evManager.post(Event.CarUpdatedEvent(self))
 
+		elif isinstance(event, Event.MapUpdatedEvent):
+			self.map = event.map
+
 	def from_angle(self, angle):
 		rads = math.radians(angle)
 		self.direction = Vector2(math.sin(rads), math.cos(rads))
@@ -85,26 +139,32 @@ class Car(Event.Listener):
 		self.evManager.post(Event.CarUpdatedEvent(self))
 
 	def get_hitbox(self):
-		angle = -math.radians(self.angle)
+		angle = -self.angle
+		vec = Vector2()
 
-		front = Tools.get_point_at_vector(self.position, self.length / 2, angle)
-		front_right = Tools.get_point_at_vector(front, self.width / 2, math.pi / 2 + angle)
-		front_left = Tools.get_point_at_vector(front, self.width / 2, angle - math.pi / 2)
+		vec.from_polar((self.length / 2, angle))
+		front = self.position + vec
 
-		back = Tools.get_point_at_vector(self.position, self.length / 2, math.pi + angle)
-		back_right = Tools.get_point_at_vector(back, self.width / 2, math.pi / 2 + angle)
-		back_left = Tools.get_point_at_vector(back, self.width / 2, angle - math.pi / 2)
+		vec.from_polar((self.width / 2, angle + 90))
+		front_right = front + vec
+		vec.from_polar((self.width / 2, angle - 90))
+		front_left = front + vec
+
+		vec.from_polar((self.length / 2, angle + 180))
+		back = self.position + vec
+
+		vec.from_polar((self.width / 2, angle + 90))
+		back_right = back + vec
+		vec.from_polar((self.width / 2, angle - 90))
+		back_left = back + vec
 
 		return [front_left, front_right, back_right, back_left]
 
-	def is_on_road(self, road):
-		on_road = True
+	def is_on_road(self):
+		if self.map is None:
+			return False
+
 		for point in self.get_hitbox():
-			if not Car.is_point_on_road(point, road):
-				on_road = False
-		return on_road
-
-	@staticmethod
-	def is_point_on_road(point, road):
+			if not self.map.is_point_on_road(point):
+				return False
 		return True
-

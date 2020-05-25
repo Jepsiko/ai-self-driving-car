@@ -1,6 +1,7 @@
 from projet_ai import Event, Settings, Tools
 import pygame
 import math
+from pygame import Vector2
 
 
 class GameView(Event.Listener):
@@ -165,25 +166,30 @@ class GameView(Event.Listener):
 		pygame.draw.lines(self.screen, Settings.LIDAR_BOX_COLOR, True, lidar_corners)
 
 	def draw_lidar_points(self):
-		pos = self.character.position
-		angle = -math.radians(self.character.angle)
 		lidar = self.character.lidar
+		pos = self.character.position
+		angle = -self.character.angle
 
-		front = Tools.get_point_at_vector(pos, lidar.length - lidar.back_length, angle)
-		front_left = Tools.get_point_at_vector(front, lidar.width / 2, angle - math.pi / 2)
+		vec = Vector2()
+		vec.from_polar((lidar.length - lidar.back_length, angle))
+		front = pos + vec
+
+		vec.from_polar((lidar.width / 2, angle - 90))
+		front_left = front + vec
 
 		current = front_left
 
 		for i in range(len(lidar.matrix)):
-			first_of_line = current
+			first_of_line = Vector2(current)
+
 			for j in range(len(lidar.matrix[i])):
 				pygame.draw.circle(self.screen, Settings.LIDAR_POINTS_COLOR, (int(current.x), int(current.y)), 3)
 
-				current = Tools.get_point_at_vector(current, lidar.width / (lidar.col - 1), math.pi / 2 + angle)
-			current = Tools.get_point_at_vector(first_of_line, lidar.length / (lidar.row - 1), math.pi + angle)
+				vec.from_polar((lidar.width / (lidar.col - 1), angle + 90))
+				current += vec
 
-	def change_car_position(self, position):
-		self.character.position = position
+			vec.from_polar((lidar.length / (lidar.row - 1), angle + 180))
+			current = first_of_line + vec
 
 
 class GameController(Event.Listener):
@@ -251,7 +257,11 @@ class Game(Event.Listener):
 		print('Press P to edit points, L to edit lines, F when you\'ve finished, D for debug and ESC to quit')
 
 	def notify(self, event):
-		if isinstance(event, Event.ChangeModeEvent):
+		if isinstance(event, Event.TickEvent):
+			if self.character.is_on_road():
+				pass
+
+		elif isinstance(event, Event.ChangeModeEvent):
 			self.mode = event.mode
 			if self.mode == Mode.PLAY_MODE:
 				self.map.build()
