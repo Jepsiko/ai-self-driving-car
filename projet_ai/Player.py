@@ -7,6 +7,8 @@ class InputController(Event.Listener):
 	def __init__(self, evManager):
 		super().__init__(evManager)
 
+		self.is_maintained = [False for i in range(4)]
+
 	def notify(self, event):
 		if isinstance(event, Event.TickEvent):
 			for event in pygame.event.get():

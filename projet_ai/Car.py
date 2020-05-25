@@ -32,25 +32,41 @@ class Car(Event.Listener):
 		self.free_deceleration = 2
 
 	def notify(self, event):
-		if isinstance(event, Event.TickEvent):
-			delta = pygame.time.Clock().get_time() / 1000
-			self.velocity += (self.acceleration * delta, 0)
-			self.velocity.x = max(-self.max_velocity, min(self.velocity.x, self.max_velocity))
+		if isinstance(event, Event.MovePlayerEvent):
+			delta = 0.1
 
-			if self.steering:
-				turn_rad = self.length / math.sin(math.radians(self.steering))
-				velocity_angle = self.velocity.x / turn_rad
+			if key_pressed[pygame.K_UP]:
+				if self.velocity.x < 0:
+					self.acceleration = self.brake_deceleration
+				else:
+					self.acceleration += 1 * delta
+			elif key_pressed[pygame.K_DOWN]:
+				if self.velocity.x > 0:
+					self.acceleration = -self.brake_deceleration
+				else:
+					self.acceleration -= 1 * delta
+			elif key_pressed[pygame.K_SPACE]:
+				if abs(self.velocity.x) > delta * self.brake_deceleration:
+					self.acceleration = -math.copysign(self.brake_deceleration, self.velocity.x)
+				else:
+					self.acceleration = -self.velocity.x / delta
 			else:
-				velocity_angle = 0
+				if abs(self.velocity.x) > delta * self.free_deceleration:
+					self.acceleration = -math.copysign(self.free_deceleration, self.velocity.x)
+				else:
+					if delta != 0:
+						self.acceleration = -self.velocity.x / delta
+			self.acceleration = max(-self.max_acceleration, min(self.acceleration, self.max_acceleration))
 
-			self.position += self.velocity.rotate(-self.angle) * delta
-			self.angle += math.degrees(velocity_angle) * delta
+			if key_pressed[pygame.K_RIGHT]:
+				self.steering -= 30 * delta
+			elif key_pressed[pygame.K_LEFT]:
+				self.steering += 30 * delta
+			else:
+				self.steering = 0
+			self.steering = max(-self.max_steering, min(self.steering, self.max_steering))
 
 			self.evManager.post(Event.CarUpdatedEvent(self))
-
-		elif isinstance(event, Event.MovePlayerEvent):
-			self.acceleration = event.acceleration
-			self.steering = event.throttle
 
 	def from_angle(self, angle):
 		rads = math.radians(angle)
