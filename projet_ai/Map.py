@@ -45,7 +45,10 @@ class Map(Event.Listener):
 		return self.graph
 
 	def get_point(self, i):
-		return self.points[i]
+		if i < len(self.points):
+			return self.points[i]
+		else:
+			return None
 
 	def create_point(self):
 		# Add a new point

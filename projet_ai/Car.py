@@ -33,23 +33,19 @@ class Car(Event.Listener):
 
 	def notify(self, event):
 		if isinstance(event, Event.MovePlayerEvent):
+			direction = event.direction
 			delta = 0.1
 
-			if key_pressed[pygame.K_UP]:
+			if direction.x == 1:
 				if self.velocity.x < 0:
 					self.acceleration = self.brake_deceleration
 				else:
 					self.acceleration += 1 * delta
-			elif key_pressed[pygame.K_DOWN]:
+			elif direction.x == -1:
 				if self.velocity.x > 0:
 					self.acceleration = -self.brake_deceleration
 				else:
 					self.acceleration -= 1 * delta
-			elif key_pressed[pygame.K_SPACE]:
-				if abs(self.velocity.x) > delta * self.brake_deceleration:
-					self.acceleration = -math.copysign(self.brake_deceleration, self.velocity.x)
-				else:
-					self.acceleration = -self.velocity.x / delta
 			else:
 				if abs(self.velocity.x) > delta * self.free_deceleration:
 					self.acceleration = -math.copysign(self.free_deceleration, self.velocity.x)
@@ -58,9 +54,9 @@ class Car(Event.Listener):
 						self.acceleration = -self.velocity.x / delta
 			self.acceleration = max(-self.max_acceleration, min(self.acceleration, self.max_acceleration))
 
-			if key_pressed[pygame.K_RIGHT]:
+			if direction.y == 1:
 				self.steering -= 30 * delta
-			elif key_pressed[pygame.K_LEFT]:
+			elif direction.y == -1:
 				self.steering += 30 * delta
 			else:
 				self.steering = 0

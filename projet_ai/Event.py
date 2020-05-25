@@ -61,11 +61,10 @@ class RemovingEvent(Event):
 
 
 class MovePlayerEvent(Event):
-    def __init__(self, acceleration, throttle):
+    def __init__(self, direction):
         super().__init__()
         self.name = 'Move Player Event'
-        self.acceleration = acceleration
-        self.throttle = throttle
+        self.direction = direction
 
 
 class EventManager:
@@ -90,7 +89,7 @@ class EventManager:
             if isinstance(event, ChangeModeEvent):
                 print(' (' + str(event.mode) + ')')
             elif isinstance(event, MovePlayerEvent):
-                print(' (' + str(event.acceleration) + ', ' + str(event.throttle) + ')')
+                print(' (' + str(event.direction) + ')')
             else:
                 print()
 
