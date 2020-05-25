@@ -2,7 +2,7 @@ import pygame
 from projet_ai.Lidar import Lidar
 from pygame import Vector2
 import math
-from projet_ai import Event
+from projet_ai import Event, Tools, Settings
 
 
 class Car(Event.Listener):
@@ -83,3 +83,28 @@ class Car(Event.Listener):
 	def set_position(self, position):
 		self.position = position
 		self.evManager.post(Event.CarUpdatedEvent(self))
+
+	def get_hitbox(self):
+		angle = -math.radians(self.angle)
+
+		front = Tools.get_point_at_vector(self.position, self.length / 2, angle)
+		front_right = Tools.get_point_at_vector(front, self.width / 2, math.pi / 2 + angle)
+		front_left = Tools.get_point_at_vector(front, self.width / 2, angle - math.pi / 2)
+
+		back = Tools.get_point_at_vector(self.position, self.length / 2, math.pi + angle)
+		back_right = Tools.get_point_at_vector(back, self.width / 2, math.pi / 2 + angle)
+		back_left = Tools.get_point_at_vector(back, self.width / 2, angle - math.pi / 2)
+
+		return [front_left, front_right, back_right, back_left]
+
+	def is_on_road(self, road):
+		on_road = True
+		for point in self.get_hitbox():
+			if not Car.is_point_on_road(point, road):
+				on_road = False
+		return on_road
+
+	@staticmethod
+	def is_point_on_road(point, road):
+		return True
+

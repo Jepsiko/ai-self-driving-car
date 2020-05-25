@@ -1,7 +1,6 @@
 from projet_ai import Event, Settings, Tools
 import pygame
 import math
-from pygame import Vector2
 
 
 class GameView(Event.Listener):
@@ -116,50 +115,14 @@ class GameView(Event.Listener):
 				self.draw_lidar_points()
 			self.draw_view((10, 10))
 
-	def update(self):
-		car = self.taxi
-		delta = pygame.time.Clock().get_time() / 1000
-
-		keys = pygame.key.get_pressed()
-
-		x = 0
-		y = 0
-
-		# Key board pressed
-		if keys[pygame.K_UP]:
-			# print("up")
-			car.position.y -= 1
-			y -= 1
-
-		if keys[pygame.K_DOWN]:
-			# print("down")
-			car.position.y += 1
-			y += 1
-
-		if keys[pygame.K_LEFT]:
-			# print("gauche")
-			car.position.x -= 1
-			x -= 1
-
-		if keys[pygame.K_RIGHT]:
-			# print("droite")
-			car.position.x += 1
-			x += 1
-
-		if x == 0 and y == 0:
-			car.direction = Vector2(x, y)
-
-		else:
-			car.direction = Vector2(x, y).normalize()
-
-		car.update(delta)
-		car.lidar.update(self.screen, car.position, -math.radians(car.angle))
-
 	def draw_car(self):
 		car = self.character
 
 		rotated = pygame.transform.rotate(car.image, car.angle)
 		rect = rotated.get_rect(center=car.position)
+
+		if Settings.DEBUG:
+			pygame.draw.lines(self.screen, Settings.CAR_HITBOX_COLOR, True, car.get_hitbox())
 
 		self.screen.blit(rotated, rect)
 
@@ -218,35 +181,6 @@ class GameView(Event.Listener):
 
 				current = Tools.get_point_at_vector(current, lidar.width / (lidar.col - 1), math.pi / 2 + angle)
 			current = Tools.get_point_at_vector(first_of_line, lidar.length / (lidar.row - 1), math.pi + angle)
-
-	def is_on_grass(self):
-		angle = -math.radians(self.character.angle)
-		car = self.character
-
-		front = Tools.get_point_at_vector(car.position, car.length / 2, angle)
-		front_right = Tools.get_point_at_vector(front, car.width / 2, math.pi / 2 + angle)
-		front_left = Tools.get_point_at_vector(front, car.width / 2, angle - math.pi / 2)
-
-		back = Tools.get_point_at_vector(car.position, car.length / 2, math.pi + angle)
-		back_right = Tools.get_point_at_vector(back, car.width / 2, math.pi / 2 + angle)
-		back_left = Tools.get_point_at_vector(back, car.width / 2, angle - math.pi / 2)
-
-		on_grass = False
-		if self.screen.get_at((int(front_left.x), int(front_left.y))) == Settings.GRASS_COLOR:
-			on_grass = True
-		elif self.screen.get_at((int(front_right.x), int(front_right.y))) == Settings.GRASS_COLOR:
-			on_grass = True
-		elif self.screen.get_at((int(back_left.x), int(back_left.y))) == Settings.GRASS_COLOR:
-			on_grass = True
-		elif self.screen.get_at((int(back_right.x), int(back_right.y))) == Settings.GRASS_COLOR:
-			on_grass = True
-
-		# Draw the hitbox of the car
-		if Settings.DEBUG:
-			lidar_corners = [front_left, back_left, back_right, front_right]
-			pygame.draw.lines(self.screen, Settings.CAR_HITBOX_COLOR, True, lidar_corners)
-
-		return on_grass
 
 	def change_car_position(self, position):
 		self.character.position = position
