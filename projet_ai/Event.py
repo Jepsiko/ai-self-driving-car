@@ -16,9 +16,10 @@ class QuitEvent(Event):
 
 
 class TickEvent(Event):
-    def __init__(self):
+    def __init__(self, delta):
         super().__init__()
         self.name = 'Tick Event'
+        self.delta = delta
 
 
 class ChangeModeEvent(Event):

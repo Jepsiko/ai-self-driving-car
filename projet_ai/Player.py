@@ -61,10 +61,10 @@ class InputController(Event.Listener):
 				direction += Vector2(-1, 0)
 
 			if key_pressed[Settings.KEY_MOVE_LEFT]:
-				direction += Vector2(0, -1)
+				direction += Vector2(0, 1)
 
 			if key_pressed[Settings.KEY_MOVE_RIGHT]:
-				direction += Vector2(0, 1)
+				direction += Vector2(0, -1)
 
 			self.evManager.post(Event.MovePlayerEvent(direction))
 
