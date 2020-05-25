@@ -24,7 +24,7 @@ class Car(Event.Listener):
 		self.velocity = Vector2(0, 0)
 
 		self.max_acceleration = 50
-		self.max_steering = 30
+		self.max_steering = 40
 		self.max_velocity = 160
 
 		self.brake_deceleration = 90

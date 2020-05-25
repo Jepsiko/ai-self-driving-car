@@ -260,18 +260,14 @@ class GameController(Event.Listener):
 		self.keepGoing = 1
 
 	def run(self):
-		clock = pygame.time.Clock()
-		get_ticks_last_frame = 0
+		previous = 0
 
 		while self.keepGoing:
-			t = pygame.time.get_ticks()
-			# delta time in seconds
-			delta = (t - get_ticks_last_frame) / 1000.0
-			get_ticks_last_frame = t
+			now = pygame.time.get_ticks()
+			delta = (now - previous) / 1000.0
+			previous = now
 
 			self.evManager.post(Event.TickEvent(delta))
-
-			# clock.tick(10)
 
 		pygame.quit()
 
