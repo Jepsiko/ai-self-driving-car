@@ -60,7 +60,7 @@ random_uniform = tf.initializers.random_uniform
 
 
 class Actor(object):
-	def __init__(self, lr, n_actions, name, input_dims, sess, fc1_dims, fc2_dims, action_bound, batch_size=64,
+	def __init__(self, lr, n_actions, name, input_dims, sess, fc1_dims, fc2_dims, batch_size=64,
 				 chkpt_dir='tmp/ddpg'):
 		self.lr = lr
 		self.n_actions = n_actions
@@ -70,7 +70,7 @@ class Actor(object):
 		self.fc2_dims = fc2_dims
 		self.sess = sess
 		self.batch_size = batch_size
-		self.action_bound = action_bound
+		# self.action_bound = action_bound
 		self.chkpt_dir = chkpt_dir
 		self.build_network()
 		self.params = tf.trainable_variables(scope=self.name)
@@ -101,7 +101,8 @@ class Actor(object):
 			f3 = 0.003
 			mu = tf.layers.dense(layer2_activation, units=self.n_actions, activation='tanh',
 								 kernel_initializer=random_uniform(-f3, f3), bias_initializer=random_uniform(-f3, f3))
-			self.mu = tf.multiply(mu, self.action_bound)
+			self.mu = mu
+			# self.mu = tf.multiply(mu, self.action_bound)
 
 	def predict(self, inputs):
 		return self.sess.run(self.mu, feed_dict={self.input: inputs})
@@ -196,13 +197,11 @@ class Agent:
 		self.batch_size = batch_size
 		self.sess = tf.Session()
 
-		self.actor = Actor(alpha, n_actions, 'Actor', input_dims, self.sess, layer1_size, layer2_size,
-						   env.action_space.high)
+		self.actor = Actor(alpha, n_actions, 'Actor', input_dims, self.sess, layer1_size, layer2_size)
 
 		self.critic = Critic(beta, n_actions, 'Critic', input_dims, self.sess, layer1_size, layer2_size)
 
-		self.target_actor = Actor(alpha, n_actions, 'TargetActor', input_dims, self.sess, layer1_size, layer2_size,
-								  env.action_space.high)
+		self.target_actor = Actor(alpha, n_actions, 'TargetActor', input_dims, self.sess, layer1_size, layer2_size)
 
 		self.target_critic = Critic(beta, n_actions, 'TargetCritic', input_dims, self.sess, layer1_size, layer2_size)
 

@@ -38,6 +38,12 @@ class InputController(Event.Listener):
 					elif event.key == Settings.KEY_TOGGLE_DEBUG:
 						ev = Event.ToggleDebugEvent()
 
+					elif event.key == Settings.KEY_SAVE_MAP:
+						ev = Event.SaveMapEvent(input('Map name : '))
+
+					elif event.key == Settings.KEY_LOAD_MAP:
+						ev = Event.LoadMapEvent(input('Map name : '))
+
 				# If mouse is pressed
 				elif event.type == pygame.MOUSEBUTTONDOWN:
 

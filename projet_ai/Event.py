@@ -68,6 +68,20 @@ class MovePlayerEvent(Event):
         self.direction = direction
 
 
+class SaveMapEvent(Event):
+    def __init__(self, map_name):
+        super().__init__()
+        self.name = 'Save Map Event'
+        self.map_name = map_name
+
+
+class LoadMapEvent(Event):
+    def __init__(self, map_name):
+        super().__init__()
+        self.name = 'Load Map Event'
+        self.map_name = map_name
+
+
 class EventManager:
     """this object is responsible for coordinating most communication
     between the Model, View, and Controller."""

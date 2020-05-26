@@ -2,6 +2,7 @@ from projet_ai import Event, Settings, Tools
 import pygame
 import math
 from pygame import Vector2
+import numpy as np
 
 
 class GameView(Event.Listener):
@@ -179,29 +180,51 @@ class GameView(Event.Listener):
 
 class GameController(Event.Listener):
 
-	def __init__(self, evManager):
+	def __init__(self, game, evManager):
 		super().__init__(evManager)
 
-		self.keepGoing = 1
+		self.game = game
+		self.keepGoing = True
+		self.previous = 0
 
 	def run(self):
-		previous = 0
 
 		while self.keepGoing:
 			now = pygame.time.get_ticks()
-			delta = (now - previous) / 1000.0
-			previous = now
+			delta = (now - self.previous) / 1000.0
+			self.previous = now
 
 			self.evManager.post(Event.TickEvent(delta))
 
 		pygame.quit()
 
-	def step(self):
-		pass
+	def get_state(self):
+		return self.game.character.lidar.matrix
+
+	def step(self, action):
+		self.evManager.post(Event.MovePlayerEvent(action))
+
+		now = pygame.time.get_ticks()
+		delta = (now - self.previous) / 1000.0
+		self.previous = now
+
+		self.evManager.post(Event.TickEvent(delta))
+
+		car = self.game.character
+
+		new_state = np.array(car.lidar.matrix).reshape(1, self.get_number_inputs())
+		reward = car.velocity[0] / car.max_front_velocity if car.is_on_road() else -1
+		done = not self.keepGoing
+		info = ''
+		return new_state, reward, done, info
+
+	def get_number_inputs(self):
+		lidar = self.game.character.lidar
+		return lidar.row * lidar.col
 
 	def notify(self, event):
 		if isinstance(event, Event.QuitEvent):
-			self.keepGoing = 0
+			self.keepGoing = False
 
 		elif isinstance(event, Event.ToggleDebugEvent):
 			Settings.DEBUG = not Settings.DEBUG
@@ -242,15 +265,21 @@ class Game(Event.Listener):
 		print('Press P to edit points, L to edit lines, F when you\'ve finished, D for debug and ESC to quit')
 
 	def notify(self, event):
-		if isinstance(event, Event.TickEvent):
-			if self.character.is_on_road():
-				pass
+		if isinstance(event, Event.LoadMapEvent):
+			self.map.load_map(event.map_name)
+			if self.mode == Mode.PLAY_MODE:
+				self.map.build()
+				first_point = self.map.get_point(0)
+				if first_point is not None:
+					self.character.set_position(first_point)
 
 		elif isinstance(event, Event.ChangeModeEvent):
 			self.mode = event.mode
 			if self.mode == Mode.PLAY_MODE:
 				self.map.build()
-				self.character.set_position(self.map.get_point(0))
+				first_point = self.map.get_point(0)
+				if first_point is not None:
+					self.character.set_position(first_point)
 
 		elif isinstance(event, Event.CreationEvent):
 			# Point creation

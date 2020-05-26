@@ -8,6 +8,7 @@ import matplotlib.pyplot as pl
 if __name__ == '__main__':
 	using_ai = True
 	env = gym.make('Pendulum-v0')
+	print(env.action_space.high)
 	agent = Agent.Agent(alpha=0.0001, beta=0.001, input_dims=[3], tau=0.0005, env=env, batch_size=64, layer1_size=800,
                         layer2_size=300, n_actions=1)
 	score_history = []
@@ -22,10 +23,13 @@ if __name__ == '__main__':
 				action = agent.choose_action(obs)
 			else:
 				action = float(input("action : "))
+
 			new_state, reward, done, info = env.step(action)
+
 			if using_ai:
 				agent.remember(obs, action, reward, new_state, int(done))
 				agent.learn()
+
 			score += reward
 			obs = new_state
 		score_history.append(score)

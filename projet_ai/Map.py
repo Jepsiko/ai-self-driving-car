@@ -32,6 +32,15 @@ class Map(Event.Listener):
 	def __init__(self, evManager):
 		super().__init__(evManager)
 
+		self.reset()
+
+	def notify(self, event):
+		if isinstance(event, Event.SaveMapEvent):
+			name = input('File name : ')
+			self.save_map(name)
+
+	def reset(self):
+
 		self.firstPoint = None
 		self.crossing = False
 
@@ -170,3 +179,32 @@ class Map(Event.Listener):
 				return True
 
 		return False
+
+	def save_map(self, name):
+		with open(name, 'w') as file:
+			for point in self.points:
+				file.write(str(point[0]) + ',' + str(point[1]) + ' ')
+			file.write('\n')
+			for line in self.lines:
+				for point in line:
+					file.write(str(point[0]) + ',' + str(point[1]) + ' ')
+				file.write('\n')
+
+	def load_map(self, name):
+		self.reset()
+
+		with open(name, 'r') as file:
+			for point in file.readline().split(' ')[:-1]:
+				point = point.split(',')
+				point = (int(point[0]), int(point[1]))
+				self.points.append(point)
+
+			for line in file.readlines():
+				new_line = []
+				for point in line.split(' ')[:-1]:
+					point = point.split(',')
+					point = (int(point[0]), int(point[1]))
+					new_line.append(point)
+				self.lines.append(new_line)
+
+		self.evManager.post(Event.MapUpdatedEvent(self))
