@@ -51,6 +51,45 @@ class Map(Event.Listener):
 		else:
 			return None
 
+	@staticmethod
+	def is_point_in_rectangle(point, rectangle):
+		P = point
+		A, B, C, D = rectangle
+		AP = Vector2(P.x - A.x, P.y - A.y)
+		AB = Vector2(B.x - A.x, B.y - A.y)
+		AD = Vector2(D.x - A.x, D.y - A.y)
+
+		return 0 < AP.dot(AB) < AB.dot(AB) and 0 < AP.dot(AD) < AD.dot(AD)
+
+	@staticmethod
+	def get_rect(line, width):
+		X, Y = line
+		X = Vector2(X)
+		Y = Vector2(Y)
+
+		length = X.distance_to(Y)
+		if length == 0:
+			return None
+
+		angle = math.degrees(math.atan2(Y.y - X.y, Y.x - X.x))
+		if angle < 0:
+			angle += 360
+
+		vec = Vector2()
+		vec.from_polar((width / 2, angle + 90))
+		A = X + vec
+
+		vec.from_polar((width / 2, angle - 90))
+		B = X + vec
+
+		vec.from_polar((width / 2, angle - 90))
+		C = Y + vec
+
+		vec.from_polar((width / 2, angle + 90))
+		D = Y + vec
+
+		return [A, B, C, D]
+
 	def create_point(self):
 		# Add a new point
 		mouse = pygame.mouse.get_pos()
@@ -120,6 +159,9 @@ class Map(Event.Listener):
 	def is_point_on_road(self, point):
 		for road in self.lines:
 			A, B = road
+
+			if Map.is_point_in_rectangle(point, Map.get_rect(road, Settings.ROAD_WIDTH)):
+				return True
 
 			if point.distance_to(A) <= Settings.ROAD_WIDTH/2:
 				return True

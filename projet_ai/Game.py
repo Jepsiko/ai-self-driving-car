@@ -70,34 +70,19 @@ class GameView(Event.Listener):
 			pygame.draw.circle(self.screen, Settings.ROAD_COLOR, position, 10)
 
 		for line in self.game.map.lines:
-			self.draw_line(line, Settings.ROAD_COLOR, 20)
+			self.draw_rect(line, Settings.ROAD_COLOR, 20)
 
 		line_to_mouse = self.game.map.get_building_line()
 		if line_to_mouse is not None:
 			if self.game.map.is_crossing(line_to_mouse):
-				self.draw_line(line_to_mouse, Settings.CROSSING_ROAD_COLOR, 20)
+				self.draw_rect(line_to_mouse, Settings.CROSSING_ROAD_COLOR, 20)
 			else:
-				self.draw_line(line_to_mouse, Settings.ROAD_COLOR, 20)
+				self.draw_rect(line_to_mouse, Settings.ROAD_COLOR, 20)
 
-	def draw_line(self, line, color, width):
-		pos1, pos2 = line
-		x1, y1 = pos1
-		x2, y2 = pos2
-		length = math.hypot(x1 - x2, y1 - y2)
-		if length == 0:
-			return
-		angle = math.acos((x2 - x1) / length)
-		if y2 < y1:
-			angle = math.pi * 2 - angle
-		point1 = (x1 + int(width / 2 * math.cos(angle + math.pi / 2)),
-				  y1 + int(width / 2 * math.sin(angle + math.pi / 2)))
-		point2 = (x1 + int(width / 2 * math.cos(angle - math.pi / 2)),
-				  y1 + int(width / 2 * math.sin(angle - math.pi / 2)))
-		point3 = (x2 + int(width / 2 * math.cos(angle - math.pi / 2)),
-				  y2 + int(width / 2 * math.sin(angle - math.pi / 2)))
-		point4 = (x2 + int(width / 2 * math.cos(angle + math.pi / 2)),
-				  y2 + int(width / 2 * math.sin(angle + math.pi / 2)))
-		pygame.draw.polygon(self.screen, color, [point1, point2, point3, point4])
+	def draw_rect(self, line, color, width):
+		rect = self.game.map.get_rect(line, width)
+		if rect is not None:
+			pygame.draw.polygon(self.screen, color, rect)
 
 	def play_mode(self):
 		# Draw the roads
@@ -105,7 +90,7 @@ class GameView(Event.Listener):
 			pygame.draw.circle(self.screen, Settings.ROAD_COLOR, position, int(Settings.ROAD_WIDTH / 2))
 
 		for line in self.game.map.lines:
-			self.draw_line(line, Settings.ROAD_COLOR, Settings.ROAD_WIDTH)
+			self.draw_rect(line, Settings.ROAD_COLOR, Settings.ROAD_WIDTH)
 
 		# Draw the taxi
 		if self.character is not None:

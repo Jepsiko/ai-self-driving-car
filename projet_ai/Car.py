@@ -2,7 +2,7 @@ import pygame
 from pygame import Vector2
 import math
 import numpy as np
-from projet_ai import Event, Tools
+from projet_ai import Event
 
 
 class Lidar(Event.Listener):
