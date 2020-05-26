@@ -74,9 +74,10 @@ class Car(Event.Listener):
 
 		self.max_acceleration = 50
 		self.max_steering = 40
-		self.max_velocity = 160
+		self.max_front_velocity = 180
+		self.max_rear_velocity = 50
 
-		self.brake_deceleration = 90
+		self.brake_deceleration = 120
 		self.free_deceleration = 30
 
 		self.map = None
@@ -102,13 +103,11 @@ class Car(Event.Listener):
 				else:
 					if event.delta != 0:
 						self.acceleration = -self.velocity.x / event.delta
-			self.acceleration = max(-self.max_acceleration, min(self.acceleration, self.max_acceleration))
 
 			self.steering = self.max_steering * self.direction.y
-			self.steering = max(-self.max_steering, min(self.steering, self.max_steering))
 
 			self.velocity += (self.acceleration * event.delta, 0)
-			self.velocity.x = max(-self.max_velocity, min(self.velocity.x, self.max_velocity))
+			self.velocity.x = max(-self.max_rear_velocity, min(self.velocity.x, self.max_front_velocity))
 
 			if self.steering:
 				turn_rad = self.length / math.sin(math.radians(self.steering))
@@ -151,14 +150,14 @@ class Car(Event.Listener):
 		front_left = front + vec
 
 		vec.from_polar((self.length / 2, angle + 180))
-		back = self.position + vec
+		rear = self.position + vec
 
 		vec.from_polar((self.width / 2, angle + 90))
-		back_right = back + vec
+		rear_right = rear + vec
 		vec.from_polar((self.width / 2, angle - 90))
-		back_left = back + vec
+		rear_left = rear + vec
 
-		return [front_left, front_right, back_right, back_left]
+		return [front_left, front_right, rear_right, rear_left]
 
 	def is_on_road(self):
 		if self.map is None:
