@@ -121,7 +121,7 @@ class Actor(object):
 
 class Critic(object):
 	def __init__(self, lr, n_actions, name, input_dims, sess, fc1_dims, fc2_dims, batch_size=64,
-				 chkpt_dir='tmp/ddpg'):
+				 chkpt_dir='C:/Users/bibou/Desktop/agent'):
 		self.lr = lr
 		self.n_actions = n_actions
 		self.name = name
@@ -179,7 +179,7 @@ class Critic(object):
 		return self.sess.run(self.action_gradients, feed_dict={self.input: inputs, self.actions: actions})
 
 	def save_checkpoint(self):
-		print('...saving chackpoint...')
+		print('...saving checkpoint...')
 		self.saver.save(self.sess, self.checkpoint_file)
 
 	def load_checkpoint(self):

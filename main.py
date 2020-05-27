@@ -1,9 +1,10 @@
 from projet_ai import Agent, Env
 import numpy as np
+import matplotlib.pyplot as plt
 
 
 def main():
-	env = Env.Env('Taxi Agent Editor', use_ai=True, map_name='map2')
+	env = Env.Env('Taxi Agent Editor', use_ai=True, map_name='map2', display=True)
 
 	agent = Agent.Agent(alpha=0.0001, beta=0.001, input_dims=[env.get_number_inputs()], tau=0.0005, env=env, batch_size=64, layer1_size=800,
 						layer2_size=300, n_actions=2)
@@ -11,7 +12,9 @@ def main():
 	mean_history = []
 	np.random.seed(0)
 
-	for i in range(1000):
+	agent.load_models()
+
+	for i in range(100):
 
 		obs = env.reset()
 		done = False
@@ -36,6 +39,11 @@ def main():
 		mean = np.mean(score_history[-100:])
 		mean_history.append(mean)
 		print("episode ", i, 'score %.2f' % score, '100 game average %.2f' % mean)
+
+	agent.save_models()
+	plt.plot(score_history)
+	plt.plot(mean_history)
+	plt.show()
 
 
 if __name__ == "__main__":
