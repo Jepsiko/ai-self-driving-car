@@ -97,16 +97,10 @@ class Car(Event.Listener):
 			self.direction = event.direction
 
 		elif isinstance(event, Event.TickEvent):
-			if self.direction.x == 1:
-				if self.velocity.x < 0:
-					self.acceleration = self.brake_deceleration
-				else:
-					self.acceleration = self.max_acceleration * self.direction.x
-			elif self.direction.x == -1:
-				if self.velocity.x > 0:
-					self.acceleration = -self.brake_deceleration
-				else:
-					self.acceleration = self.max_acceleration * self.direction.x
+			if (self.direction.x > 0 and self.velocity.x < 0) or (self.direction.x < 0 and self.velocity.x > 0):
+				self.acceleration = self.brake_deceleration
+			elif self.direction.x != 0:
+				self.acceleration = self.max_acceleration * self.direction.x
 			else:
 				if abs(self.velocity.x) > event.delta * self.free_deceleration:
 					self.acceleration = -math.copysign(self.free_deceleration, self.velocity.x)
@@ -140,8 +134,16 @@ class Car(Event.Listener):
 	def from_vector(self, vector):
 		self.direction = (vector - self.position).normalize()
 
+	def get_number_inputs(self):
+		return self.lidar.row * self.lidar.col + 3
+
 	def get_state(self):
-		return self.lidar.matrix
+		lidar_size = self.lidar.row * self.lidar.col
+		state = self.lidar.matrix.reshape(lidar_size)
+		state = np.append(state, self.acceleration / self.max_acceleration)
+		state = np.append(state, self.steering / self.max_steering)
+		state = np.append(state, self.velocity.x / self.max_front_velocity)
+		return state
 
 	def reset(self, position, angle):
 		self.position = position
@@ -183,5 +185,14 @@ class Car(Event.Listener):
 
 		for point in self.get_hitbox():
 			if not self.map.is_point_on_road(point):
+				return False
+		return True
+
+	def is_on_grass(self):
+		if self.map is None:
+			return True
+
+		for point in self.get_hitbox():
+			if self.map.is_point_on_road(point):
 				return False
 		return True

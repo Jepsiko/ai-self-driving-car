@@ -185,7 +185,9 @@ class GameController(Event.Listener):
 		self.keepGoing = True
 		self.previous = 0
 		self.step_counter = 0
-		self.life_span = -1  # -1 = no life span
+		self.life_span = 1000  # -1 = no life span
+		self.step_grass_counter = 0
+		self.life_span_on_grass = 20
 
 	def run(self):
 
@@ -199,11 +201,7 @@ class GameController(Event.Listener):
 		pygame.quit()
 
 	def step(self, action):
-		self.step_counter += 1
-		if self.step_counter == self.life_span:
-			self.keepGoing = False
-
-		self.evManager.post(Event.MovePlayerEvent(action))
+		self.evManager.post(Event.MovePlayerEvent(Vector2(action[0], action[1])))
 
 		now = pygame.time.get_ticks()
 		delta = (now - self.previous) / 1000.0
@@ -213,15 +211,21 @@ class GameController(Event.Listener):
 
 		car = self.game.character
 
-		new_state = np.array(car.lidar.matrix).reshape(1, self.get_number_inputs())
-		reward = car.velocity[0] / car.max_front_velocity if car.is_on_road() else -1
+		new_state = car.get_state()
+		reward = abs(car.velocity[0]) / car.max_front_velocity if car.is_on_road() else -1
 		done = not self.keepGoing
 		info = ''
-		return new_state, reward, done, info
 
-	def get_number_inputs(self):
-		lidar = self.game.character.lidar
-		return lidar.row * lidar.col
+		self.step_counter += 1
+		if self.step_counter == self.life_span:
+			self.keepGoing = False
+
+		if car.is_on_grass():
+			self.step_grass_counter += 1
+			if self.step_grass_counter == self.life_span_on_grass:
+				self.keepGoing = False
+
+		return new_state, reward, done, info
 
 	def notify(self, event):
 		if isinstance(event, Event.QuitEvent):
@@ -233,6 +237,7 @@ class GameController(Event.Listener):
 	def reset(self):
 		self.keepGoing = True
 		self.step_counter = 0
+		self.step_grass_counter = 0
 
 
 class Mode:
@@ -270,7 +275,6 @@ class Game(Event.Listener):
 		print('Press P to edit points, L to edit lines, F when you\'ve finished, D for debug and ESC to quit')
 
 	def start(self):
-		self.map.build()
 		first_point = Vector2(self.map.get_point(0))
 		next_point = Vector2(self.map.get_neighbours(0)[0])
 		angle = math.degrees(math.atan2(first_point.y - next_point.y, first_point.x - next_point.x))
@@ -282,11 +286,13 @@ class Game(Event.Listener):
 		if isinstance(event, Event.LoadMapEvent):
 			self.map.load_map(event.map_name)
 			if self.mode == Mode.PLAY_MODE:
+				self.map.build()
 				self.start()
 
 		elif isinstance(event, Event.ChangeModeEvent):
 			self.mode = event.mode
 			if self.mode == Mode.PLAY_MODE:
+				self.map.build()
 				self.start()
 
 		elif isinstance(event, Event.CreationEvent):

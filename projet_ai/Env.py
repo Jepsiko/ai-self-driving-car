@@ -47,7 +47,7 @@ class Env:
 		return self.character.get_state()
 
 	def get_number_inputs(self):
-		return self.gameController.get_number_inputs()
+		return self.character.get_number_inputs()
 
 	def run(self):
 		self.gameController.run()
