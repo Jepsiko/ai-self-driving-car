@@ -22,7 +22,7 @@ def main():
 
 		while not done:
 			# action = agent.choose_action(obs)
-			action = Vector2(1, 1)
+			action = Vector2(0, 0)
 
 			new_state, reward, done, info = env.step(action)
 

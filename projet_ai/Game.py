@@ -10,11 +10,9 @@ class GameView(Event.Listener):
 	def __init__(self, game, evManager):
 		super().__init__(evManager)
 
-		pygame.init()
-
 		# Create the screen
 		self.screen = pygame.display.set_mode((Settings.WIDTH, Settings.HEIGHT))
-		# screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN) #  TODO: For the final version
+		# self.screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)  # TODO: For the final version
 
 		# Title and Icon
 		pygame.display.set_caption("Taxi Agent")
@@ -186,6 +184,8 @@ class GameController(Event.Listener):
 		self.game = game
 		self.keepGoing = True
 		self.previous = 0
+		self.step_counter = 0
+		self.life_span = -1  # -1 = no life span
 
 	def run(self):
 
@@ -198,10 +198,11 @@ class GameController(Event.Listener):
 
 		pygame.quit()
 
-	def get_state(self):
-		return self.game.character.lidar.matrix
-
 	def step(self, action):
+		self.step_counter += 1
+		if self.step_counter == self.life_span:
+			self.keepGoing = False
+
 		self.evManager.post(Event.MovePlayerEvent(action))
 
 		now = pygame.time.get_ticks()
@@ -228,6 +229,10 @@ class GameController(Event.Listener):
 
 		elif isinstance(event, Event.ToggleDebugEvent):
 			Settings.DEBUG = not Settings.DEBUG
+
+	def reset(self):
+		self.keepGoing = True
+		self.step_counter = 0
 
 
 class Mode:
@@ -264,22 +269,25 @@ class Game(Event.Listener):
 
 		print('Press P to edit points, L to edit lines, F when you\'ve finished, D for debug and ESC to quit')
 
+	def start(self):
+		self.map.build()
+		first_point = Vector2(self.map.get_point(0))
+		next_point = Vector2(self.map.get_neighbours(0)[0])
+		angle = math.degrees(math.atan2(first_point.y - next_point.y, first_point.x - next_point.x))
+		if angle < 0:
+			angle += 360
+		self.character.reset(first_point, 180 - angle)
+
 	def notify(self, event):
 		if isinstance(event, Event.LoadMapEvent):
 			self.map.load_map(event.map_name)
 			if self.mode == Mode.PLAY_MODE:
-				self.map.build()
-				first_point = self.map.get_point(0)
-				if first_point is not None:
-					self.character.set_position(first_point)
+				self.start()
 
 		elif isinstance(event, Event.ChangeModeEvent):
 			self.mode = event.mode
 			if self.mode == Mode.PLAY_MODE:
-				self.map.build()
-				first_point = self.map.get_point(0)
-				if first_point is not None:
-					self.character.set_position(first_point)
+				self.start()
 
 		elif isinstance(event, Event.CreationEvent):
 			# Point creation

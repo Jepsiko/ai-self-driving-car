@@ -60,6 +60,15 @@ class Map(Event.Listener):
 		else:
 			return None
 
+	def get_neighbours(self, i):
+		neighbours = []
+		for line in self.lines:
+			if self.points[i] == line[0]:
+				neighbours.append(line[1])
+			elif self.points[i] == line[1]:
+				neighbours.append(line[0])
+		return neighbours
+
 	@staticmethod
 	def is_point_in_rectangle(point, rectangle):
 		P = point

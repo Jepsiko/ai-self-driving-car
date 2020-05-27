@@ -1,4 +1,5 @@
 from weakref import WeakKeyDictionary
+from projet_ai import Settings
 
 
 class Event:
@@ -98,7 +99,8 @@ class EventManager:
             del self.listeners[listener]
 
     def post(self, event):
-        if not isinstance(event, TickEvent) and \
+        if Settings.DEBUG and \
+                not isinstance(event, TickEvent) and \
                 not isinstance(event, CarUpdatedEvent) and \
                 not isinstance(event, MovePlayerEvent):
             print('Message: ' + event.name, end='')

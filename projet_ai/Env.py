@@ -1,4 +1,5 @@
 from projet_ai import Event, Player, Car, Map, Settings, Game
+import pygame
 
 
 class Env:
@@ -8,16 +9,15 @@ class Env:
 		self.use_ai = use_ai
 		self.display = display
 
-		self.reset()
+		pygame.init()
 
-	def reset(self):
 		self.evManager = Event.EventManager()
 
 		if self.name == 'Taxi Agent Editor':
 			self.player = Player.Player(self.use_ai, self.evManager)
 
-			if not self.use_ai:
-				self.inputController = Player.InputController(self.evManager)
+			#if not self.use_ai:
+			self.inputController = Player.InputController(self.evManager)
 
 			self.character = Car.Car(Settings.CAR_IMAGE, self.evManager)
 			self.map = Map.Map(self.evManager)
@@ -38,7 +38,13 @@ class Env:
 
 			self.evManager.post(Event.ChangeModeEvent(self.mode))
 
-		return self.gameController.get_state()
+	def __del__(self):
+		pygame.quit()
+
+	def reset(self):
+		self.gameController.reset()
+		self.game.start()
+		return self.character.get_state()
 
 	def get_number_inputs(self):
 		return self.gameController.get_number_inputs()

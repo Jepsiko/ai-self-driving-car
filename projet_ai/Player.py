@@ -72,7 +72,8 @@ class InputController(Event.Listener):
 			if key_pressed[Settings.KEY_MOVE_RIGHT]:
 				direction += Vector2(0, -1)
 
-			self.evManager.post(Event.MovePlayerEvent(direction))
+			if direction.x != 0 or direction.y != 0:
+				self.evManager.post(Event.MovePlayerEvent(direction))
 
 
 class Player(Event.Listener):

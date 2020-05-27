@@ -63,11 +63,10 @@ class Car(Event.Listener):
 		self.length = self.image.get_rect().width
 
 		self.position = Vector2(0, 0)
-		self.lidar = Lidar(evManager, 7, 6)
+		self.angle = 0
 
 		self.direction = Vector2(0, 0)
 
-		self.angle = 0
 		self.acceleration = 0
 		self.steering = 0
 		self.velocity = Vector2(0, 0)
@@ -80,7 +79,18 @@ class Car(Event.Listener):
 		self.brake_deceleration = 120
 		self.free_deceleration = 30
 
+		self.lidar = Lidar(evManager, 7, 6)
+
 		self.map = None
+
+	def display_info(self):
+		print('--- Car ---')
+		print('Position :', self.position)
+		print('Direction :', self.direction)
+		print('Velocity :', self.velocity)
+		print('Angle :', self.angle)
+		print('Acceleration :', self.acceleration)
+		print('Steering :', self.steering)
 
 	def notify(self, event):
 		if isinstance(event, Event.MovePlayerEvent):
@@ -133,8 +143,16 @@ class Car(Event.Listener):
 	def get_state(self):
 		return self.lidar.matrix
 
-	def set_position(self, position):
+	def reset(self, position, angle):
 		self.position = position
+		self.angle = angle
+
+		self.direction = Vector2(0, 0)
+
+		self.acceleration = 0
+		self.steering = 0
+		self.velocity = Vector2(0, 0)
+
 		self.evManager.post(Event.CarUpdatedEvent(self))
 
 	def get_hitbox(self):
