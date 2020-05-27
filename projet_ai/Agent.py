@@ -61,7 +61,7 @@ random_uniform = tf.initializers.random_uniform
 
 class Actor(object):
 	def __init__(self, lr, n_actions, name, input_dims, sess, fc1_dims, fc2_dims, batch_size=64,
-				 chkpt_dir='tmp/ddpg'):
+				 chkpt_dir='C:\\Users\\bibou\\Desktop\\agent'):
 		self.lr = lr
 		self.n_actions = n_actions
 		self.input_dims = input_dims
@@ -75,7 +75,7 @@ class Actor(object):
 		self.build_network()
 		self.params = tf.trainable_variables(scope=self.name)
 		self.saver = tf.train.Saver()
-		self.checkpoint_file = os.path.join(chkpt_dir, name + 'ddpg.ckpt')
+		self.checkpoint_file = os.path.join(chkpt_dir, name + '_ddpg.ckpt')
 
 		self.unnormalized_actor_gradients = tf.gradients(self.mu, self.params, self.action_gradient)
 
@@ -121,7 +121,7 @@ class Actor(object):
 
 class Critic(object):
 	def __init__(self, lr, n_actions, name, input_dims, sess, fc1_dims, fc2_dims, batch_size=64,
-				 chkpt_dir='C:/Users/bibou/Desktop/agent'):
+				 chkpt_dir='C:\\Users\\bibou\\Desktop\\agent'):
 		self.lr = lr
 		self.n_actions = n_actions
 		self.name = name
@@ -134,7 +134,7 @@ class Critic(object):
 		self.build_network()
 		self.params = tf.trainable_variables(scope=self.name)
 		self.saver = tf.train.Saver()
-		self.checkpoint_file = os.path.join(chkpt_dir, name + 'ddpg.ckpt')
+		self.checkpoint_file = os.path.join(chkpt_dir, name + '_ddpg.ckpt')
 
 		self.optimize = tf.train.AdamOptimizer(self.lr).minimize(self.loss)
 

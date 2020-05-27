@@ -4,17 +4,22 @@ import matplotlib.pyplot as plt
 
 
 def main():
-	env = Env.Env('Taxi Agent Editor', use_ai=True, map_name='map2', display=True)
+	episodes = int(input('Number of episodes : '))
+	display = input('Display (y/n) ? ') == 'y'
 
-	agent = Agent.Agent(alpha=0.0001, beta=0.001, input_dims=[env.get_number_inputs()], tau=0.0005, env=env, batch_size=64, layer1_size=800,
-						layer2_size=300, n_actions=2)
+	env = Env.Env('Taxi Agent Editor', use_ai=True, map_name='map2')
+
+	agent = Agent.Agent(alpha=0.0001, beta=0.001, input_dims=[env.get_number_inputs()], tau=0.0005, env=env,
+						batch_size=64, layer1_size=800, layer2_size=300, n_actions=2)
+
 	score_history = []
 	mean_history = []
 	np.random.seed(0)
 
-	agent.load_models()
+	if input('Load Agent (y/n) ? ') == 'y':
+		agent.load_models()
 
-	for i in range(100):
+	for i in range(episodes):
 
 		obs = env.reset()
 		done = False
@@ -29,6 +34,9 @@ def main():
 
 			new_state, reward, done, info = env.step(action)
 
+			if display:
+				env.render()
+
 			agent.remember(obs, action, reward, new_state, int(done))
 			agent.learn()
 
@@ -40,7 +48,8 @@ def main():
 		mean_history.append(mean)
 		print("episode ", i, 'score %.2f' % score, '100 game average %.2f' % mean)
 
-	agent.save_models()
+	if input('Save Agent (y/n) ? ') == 'y':
+		agent.save_models()
 	plt.plot(score_history)
 	plt.plot(mean_history)
 	plt.show()

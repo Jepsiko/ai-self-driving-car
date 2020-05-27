@@ -7,7 +7,7 @@ from projet_ai import Event
 
 class Lidar(Event.Listener):
 
-	def __init__(self, evManager, row=5, col=5, width=180, length=150, back_length=50):
+	def __init__(self, evManager, row=7, col=6, width=120, length=150, back_length=50):
 		super().__init__(evManager)
 
 		self.row = row
@@ -79,7 +79,7 @@ class Car(Event.Listener):
 		self.brake_deceleration = 120
 		self.free_deceleration = 30
 
-		self.lidar = Lidar(evManager, 7, 6)
+		self.lidar = Lidar(evManager)
 
 		self.map = None
 

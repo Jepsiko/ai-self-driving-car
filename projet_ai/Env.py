@@ -3,11 +3,10 @@ import pygame
 
 
 class Env:
-	def __init__(self, name='Taxi Agent Editor', use_ai=False, display=True, map_name=None):
+	def __init__(self, name='Taxi Agent Editor', use_ai=False, map_name=None):
 		self.name = name
 		self.map_name = map_name
 		self.use_ai = use_ai
-		self.display = display
 
 		pygame.init()
 
@@ -33,8 +32,7 @@ class Env:
 			self.game = Game.Game(self.player, self.character, self.map, self.mode, self.evManager)
 			self.gameController = Game.GameController(self.game, self.evManager)
 
-			if self.display:
-				self.gameView = Game.GameView(self.game, self.evManager)
+			self.gameView = None
 
 			self.evManager.post(Event.ChangeModeEvent(self.mode))
 
@@ -54,3 +52,8 @@ class Env:
 
 	def step(self, action):
 		return self.gameController.step(action)
+
+	def render(self):
+		if self.gameView is None:
+			self.gameView = Game.GameView(self.game, self.evManager)
+		self.gameView.render()

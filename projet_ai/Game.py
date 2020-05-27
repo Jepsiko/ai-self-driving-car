@@ -23,21 +23,21 @@ class GameView(Event.Listener):
 		self.character = None
 
 	def notify(self, event):
-		if isinstance(event, Event.TickEvent):
-			self.draw_background()
-
-			if self.game.mode == Mode.PLAY_MODE:
-				self.play_mode()
-			elif self.game.mode == Mode.POINT_EDITING:
-				self.point_editing()
-			elif self.game.mode == Mode.LINE_EDITING:
-				self.line_editing()
-
-			# Always update the display at the end of the loop
-			pygame.display.update()
-
-		elif isinstance(event, Event.CarUpdatedEvent):
+		if isinstance(event, Event.CarUpdatedEvent):
 			self.character = event.car
+
+	def render(self):
+		self.draw_background()
+
+		if self.game.mode == Mode.PLAY_MODE:
+			self.play_mode()
+		elif self.game.mode == Mode.POINT_EDITING:
+			self.point_editing()
+		elif self.game.mode == Mode.LINE_EDITING:
+			self.line_editing()
+
+		# Always update the display at the end of the loop
+		pygame.display.update()
 
 	def draw_background(self):
 		self.screen.fill(Settings.GRASS_COLOR)
@@ -220,7 +220,7 @@ class GameController(Event.Listener):
 		if self.step_counter == self.life_span:
 			self.keepGoing = False
 
-		if car.is_on_grass():
+		if not car.is_on_road():
 			self.step_grass_counter += 1
 			if self.step_grass_counter == self.life_span_on_grass:
 				self.keepGoing = False
