@@ -4,13 +4,13 @@ import matplotlib.pyplot as plt
 
 
 def main():
-	episodes = int(input('Number of episodes : '))
+	n_games = int(input('Number of games : '))
 	display = input('Display (y/n) ? ') == 'y'
 
 	env = Env.Env('Taxi Agent Editor', use_ai=True, map_name='map2')
 
-	agent = Agent.Agent(alpha=0.0001, beta=0.001, input_dims=[env.get_number_inputs()], tau=0.0005, env=env,
-						batch_size=64, layer1_size=800, layer2_size=300, n_actions=2)
+	agent = Agent.Agent(alpha=0.0001, beta=0.001, input_dims=[env.get_number_inputs()], tau=0.001, n_actions=2,
+						layer1_size=400, layer2_size=300)
 
 	score_history = []
 	mean_history = []
@@ -19,7 +19,7 @@ def main():
 	if input('Load Agent (y/n) ? ') == 'y':
 		agent.load_models()
 
-	for i in range(episodes):
+	for i in range(n_games):
 
 		obs = env.reset()
 		done = False
