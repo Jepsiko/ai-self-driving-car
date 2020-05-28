@@ -131,7 +131,15 @@ class Map(Event.Listener):
 								neighbour.g = current.g + Map.get_distance(neighbour, current)
 								neighbour.parent = current
 
+		second_last = None
+		if self.path is not None:
+			second_last = self.path[-2]
+
 		self.path = Map.get_path(start, current)
+
+		if second_last is not None:
+			self.path.insert(0, second_last)
+
 		for point in self.points:
 			point.reset()
 		self.evManager.post(Event.MapUpdatedEvent(self))
@@ -245,8 +253,11 @@ class Map(Event.Listener):
 	def is_point_selected(point, mouse):
 		return math.hypot(point.x - mouse[0], point.y - mouse[1]) <= Settings.DIST_SELECT_POINT
 
-	def is_point_on_end(self, point):
-		return point.distance_to(self.path[-1]) <= Settings.ROAD_WIDTH / 2 if self.path is not None else False
+	def is_point_on_last_road(self, point):
+		if self.path is not None:
+			return Map.is_point_in_rectangle(point, Map.get_rect([self.path[-1], self.path[-2]], Settings.ROAD_WIDTH))
+		else:
+			return False
 
 	def is_point_on_road(self, point):
 		for road in self.lines:

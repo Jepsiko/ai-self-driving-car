@@ -128,7 +128,7 @@ class Car(Event.Listener):
 			self.direction = Vector2(0, 0)
 			self.evManager.post(Event.CarUpdatedEvent(self))
 
-			if self.as_arrived():
+			if self.arriving():
 				self.evManager.post(Event.AStarEvent())
 
 		elif isinstance(event, Event.MapUpdatedEvent):
@@ -204,12 +204,12 @@ class Car(Event.Listener):
 				return False
 		return True
 
-	def as_arrived(self):
+	def arriving(self):
 		if self.map is None:
 			return False
 
 		for point in self.get_hitbox():
-			if not self.map.is_point_on_end(point):
+			if not self.map.is_point_on_last_road(point):
 				return False
 		return True
 
