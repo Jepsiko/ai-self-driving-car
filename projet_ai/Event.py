@@ -83,10 +83,10 @@ class LoadMapEvent(Event):
         self.map_name = map_name
 
 
-class AStarEvent(Event):
+class UpdatePathEvent(Event):
     def __init__(self):
         super().__init__()
-        self.name = 'A Star Event'
+        self.name = 'Update Path Event'
 
 
 class EventManager:

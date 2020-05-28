@@ -40,9 +40,8 @@ class Map(Event.Listener):
 		if isinstance(event, Event.SaveMapEvent):
 			self.save_map(event.map_name)
 
-		elif isinstance(event, Event.AStarEvent):
-			start = self.path[-1] if self.path is not None else self.points[0]
-			self.a_star(start, self.get_random_end(start))
+		elif isinstance(event, Event.UpdatePathEvent):
+			self.update_path()
 
 	def reset(self):
 
@@ -73,76 +72,19 @@ class Map(Event.Listener):
 				neighbours.append(line[0])
 		return neighbours
 
-	def get_random_end(self, start):
-		start_index = self.points.index(start)
-		end_index = random.randrange(0, len(self.points)-1)
-		if end_index >= start_index:
-			end_index += 1
-		return self.get_point(end_index)
+	def create_path(self):
+		start = random.choice(self.points)
+		neighbour = random.choice(self.get_neighbours(start))
+		ends = self.get_neighbours(neighbour)
+		ends.remove(start)
+		self.path = [start, neighbour, random.choice(ends)]
 
-	@staticmethod
-	def get_min_f(points):
-		min_f = points[0]
-		for i in range(1, len(points)):
-			if points[i].f() < min_f.f():
-				min_f = points[i]
-		return min_f
-
-	@staticmethod
-	def get_path(start, end):
-		current = end
-		path = [current]
-
-		while current != start:
-			current = current.parent
-			path.insert(0, current)
-
-		return path
-
-	def a_star(self, start, end):
-		# print(start, end)
-		OPEN = [start]
-		CLOSED = []
-		current = start
-
-		done = False
-		while not done:
-			current = Map.get_min_f(OPEN)
-
-			OPEN.remove(current)
-			CLOSED.append(current)
-
-			if current == end:
-				done = True
-			else:
-				for neighbour in self.get_neighbours(current):
-					# Ignore the node because the car is coming from that way at the start and it can't turn back
-					if self.path is not None and current == start and neighbour == self.path[-2]:
-						pass
-					elif neighbour not in CLOSED:
-						if neighbour not in OPEN:
-							neighbour.parent = current
-							neighbour.g = current.g + Map.get_distance(neighbour, current)
-							neighbour.h = Map.get_distance(neighbour, end)
-							OPEN.append(neighbour)
-
-						else:
-							if current.g + Map.get_distance(neighbour, current) < neighbour.g:
-								neighbour.g = current.g + Map.get_distance(neighbour, current)
-								neighbour.parent = current
-
-		second_last = None
-		if self.path is not None:
-			second_last = self.path[-2]
-
-		self.path = Map.get_path(start, current)
-
-		if second_last is not None:
-			self.path.insert(0, second_last)
-
-		for point in self.points:
-			point.reset()
-		self.evManager.post(Event.MapUpdatedEvent(self))
+	def update_path(self):
+		self.path[0] = self.path[1]
+		self.path[1] = self.path[2]
+		neighbours = self.get_neighbours(self.path[1])
+		neighbours.remove(self.path[0])
+		self.path[2] = random.choice(neighbours)
 
 	@staticmethod
 	def is_point_in_rectangle(point, rectangle):

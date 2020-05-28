@@ -331,8 +331,9 @@ class Game(Event.Listener):
 		self.mode = mode
 
 	def start(self):
-		self.evManager.post(Event.AStarEvent())
+		# self.evManager.post(Event.AStarEvent())
 
+		self.map.create_path()
 		start = self.map.path[0]
 		next_ = self.map.path[1]
 		angle = math.degrees(math.atan2(start.y - next_.y, start.x - next_.x))

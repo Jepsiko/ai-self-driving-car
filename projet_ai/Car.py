@@ -129,7 +129,7 @@ class Car(Event.Listener):
 			self.evManager.post(Event.CarUpdatedEvent(self))
 
 			if self.arriving():
-				self.evManager.post(Event.AStarEvent())
+				self.evManager.post(Event.UpdatePathEvent())
 
 		elif isinstance(event, Event.MapUpdatedEvent):
 			self.map = event.map
