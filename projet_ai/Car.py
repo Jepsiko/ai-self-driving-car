@@ -212,3 +212,12 @@ class Car(Event.Listener):
 			if not self.map.is_point_on_end(point):
 				return False
 		return True
+
+	def is_on_path(self):
+		if self.map is None:
+			return False
+
+		for point in self.get_hitbox():
+			if not self.map.is_point_on_path(point):
+				return False
+		return True
