@@ -63,7 +63,7 @@ class ReplayBuffer:
 
 class Actor(nn.Module):
 	def __init__(self, alpha, input_dims, fc1_dims, fc2_dims, n_actions, name,
-				 chkpt_dir='C:\\Users\\bibou\\Desktop\\'):
+				 chkpt_dir='C:\\Users\\thiba\\Desktop\\'):
 		super(Actor, self).__init__()
 		self.input_dims = input_dims
 		self.fc1_dims = fc1_dims
@@ -135,7 +135,7 @@ class Actor(nn.Module):
 
 class Critic(nn.Module):
 	def __init__(self, beta, input_dims, fc1_dims, fc2_dims, n_actions, name,
-				 chkpt_dir='C:\\Users\\bibou\\Desktop\\'):
+				 chkpt_dir='C:\\Users\\thiba\\Desktop\\'):
 		super(Critic, self).__init__()
 		self.input_dims = input_dims
 		self.fc1_dims = fc1_dims

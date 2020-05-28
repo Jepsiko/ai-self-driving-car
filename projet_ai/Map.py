@@ -296,11 +296,11 @@ class Map(Event.Listener):
 	def save_map(self, name):
 		with open(name, 'w') as file:
 			for point in self.points:
-				file.write(str(point.x) + ',' + str(point.y) + ' ')
+				file.write(str(int(point.x)) + ',' + str(int(point.y)) + ' ')
 			file.write('\n')
 			for line in self.lines:
 				for point in line:
-					file.write(str(point.x) + ',' + str(point.y) + ' ')
+					file.write(str(int(point.x)) + ',' + str(int(point.y)) + ' ')
 				file.write('\n')
 
 	def load_map(self, name):
