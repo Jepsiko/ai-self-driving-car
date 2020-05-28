@@ -159,14 +159,18 @@ class GameView(Event.Listener):
 			textsurface = self.font.render(text, True, (0, 0, 0))
 			self.screen.blit(textsurface, pos)
 
-		if self.gameController.action is not None:
-			text = 'Acceleration = ' + str(round(self.gameController.action[0], 3))
+			text = 'Score        = ' + str(round(self.gameController.score, 3))
 			textsurface = self.font.render(text, True, (0, 0, 0))
 			self.screen.blit(textsurface, (pos[0], pos[1] + 20))
 
-			text = 'Steering     = ' + str(round(self.gameController.action[1], 3))
+		if self.gameController.action is not None:
+			text = 'Acceleration = ' + str(round(self.gameController.action[0], 3))
 			textsurface = self.font.render(text, True, (0, 0, 0))
 			self.screen.blit(textsurface, (pos[0], pos[1] + 40))
+
+			text = 'Steering     = ' + str(round(self.gameController.action[1], 3))
+			textsurface = self.font.render(text, True, (0, 0, 0))
+			self.screen.blit(textsurface, (pos[0], pos[1] + 60))
 
 	def draw_lidar(self):
 		pos = self.character.position
@@ -235,6 +239,7 @@ class GameController(Event.Listener):
 		self.info = ''
 		self.action = None
 		self.reward = None
+		self.score = 0
 
 	def run(self):
 
@@ -264,6 +269,7 @@ class GameController(Event.Listener):
 			self.reward = car.velocity[0] / car.max_front_velocity
 		else:
 			self.reward = -1
+		self.score += self.reward
 		done = not self.keepGoing
 
 		self.step_counter += 1
@@ -289,6 +295,7 @@ class GameController(Event.Listener):
 		self.keepGoing = True
 		self.step_counter = 0
 		self.step_outside_path_counter = 0
+		self.score = 0
 
 
 class Mode:
