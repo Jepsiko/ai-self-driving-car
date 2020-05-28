@@ -36,8 +36,7 @@ class Map(Event.Listener):
 
 	def notify(self, event):
 		if isinstance(event, Event.SaveMapEvent):
-			name = input('File name : ')
-			self.save_map(name)
+			self.save_map(event.map_name)
 
 	def reset(self):
 

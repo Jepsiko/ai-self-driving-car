@@ -4,10 +4,8 @@ import matplotlib.pyplot as plt
 
 
 def main():
-	n_games = int(input('Number of games : '))
-	display = input('Display (y/n) ? ') == 'y'
 
-	env = Env.Env('Taxi Agent Editor', use_ai=True, map_name='map2')
+	env = Env.Env('Taxi Agent', map_name='city2')
 
 	agent = Agent.Agent(alpha=0.0001, beta=0.001, input_dims=[env.get_number_inputs()], tau=0.001, n_actions=2,
 						fc1_dims=400, fc2_dims=300)
@@ -17,6 +15,9 @@ def main():
 	np.random.seed(0)
 	info = ''
 	i = 0
+
+	n_games = int(input('Number of games : '))
+	display = input('Display (y/n) ? ') == 'y'
 
 	if input('Load Agent (y/n) ? ') == 'y':
 		agent.load_models()

@@ -12,7 +12,7 @@ class Env:
 
 		self.evManager = Event.EventManager()
 
-		if self.name == 'Taxi Agent Editor':
+		if self.name == 'Taxi Agent':
 			self.player = Player.Player(self.use_ai, self.evManager)
 
 			#if not self.use_ai:
@@ -20,11 +20,9 @@ class Env:
 
 			self.character = Car.Car(Settings.CAR_IMAGE, self.evManager)
 			self.map = Map.Map(self.evManager)
-			if self.use_ai:
-				if self.map_name is None:
-					self.map.load_map(input('Map name : '))
-				else:
-					self.map.load_map(self.map_name)
+
+			if self.map_name is not None:
+				self.map.load_map(self.map_name)
 				self.mode = Game.Mode(Game.Mode.PLAY_MODE)
 			else:
 				self.mode = Game.Mode(Game.Mode.POINT_EDITING)
@@ -48,6 +46,7 @@ class Env:
 		return self.character.get_number_inputs()
 
 	def run(self):
+		self.gameView = Game.GameView(self.game, self.evManager, True)
 		self.gameController.run()
 
 	def step(self, action):

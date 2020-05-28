@@ -7,7 +7,7 @@ import numpy as np
 
 class GameView(Event.Listener):
 
-	def __init__(self, game, evManager):
+	def __init__(self, game, evManager, tick_render=False):
 		super().__init__(evManager)
 
 		# Create the screen
@@ -19,12 +19,16 @@ class GameView(Event.Listener):
 		icon = pygame.image.load("taxi.png")
 		pygame.display.set_icon(icon)
 
+		self.tick_render = tick_render
 		self.game = game
 		self.character = None
 
 	def notify(self, event):
 		if isinstance(event, Event.CarUpdatedEvent):
 			self.character = event.car
+
+		elif self.tick_render and isinstance(event, Event.TickEvent):
+			self.render()
 
 	def render(self):
 		self.draw_background()
