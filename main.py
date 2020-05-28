@@ -10,16 +10,18 @@ def main():
 	env = Env.Env('Taxi Agent Editor', use_ai=True, map_name='map2')
 
 	agent = Agent.Agent(alpha=0.0001, beta=0.001, input_dims=[env.get_number_inputs()], tau=0.001, n_actions=2,
-						layer1_size=400, layer2_size=300)
+						fc1_dims=400, fc2_dims=300)
 
 	score_history = []
 	mean_history = []
 	np.random.seed(0)
+	info = ''
+	i = 0
 
 	if input('Load Agent (y/n) ? ') == 'y':
 		agent.load_models()
 
-	for i in range(n_games):
+	while info != 'Quit' and i < n_games:
 
 		obs = env.reset()
 		done = False
@@ -37,7 +39,7 @@ def main():
 			if display:
 				env.render()
 
-			agent.remember(obs, action, reward, new_state, int(done))
+			agent.remember(obs, action, reward, new_state, done)
 			agent.learn()
 
 			score += reward
@@ -47,9 +49,13 @@ def main():
 		mean = np.mean(score_history[-100:])
 		mean_history.append(mean)
 		print("episode ", i, 'score %.2f' % score, '100 game average %.2f' % mean)
+		i += 1
 
 	if input('Save Agent (y/n) ? ') == 'y':
 		agent.save_models()
+
+	print(score_history)
+	print(mean_history)
 	plt.plot(score_history)
 	plt.plot(mean_history)
 	plt.show()

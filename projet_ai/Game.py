@@ -185,9 +185,10 @@ class GameController(Event.Listener):
 		self.keepGoing = True
 		self.previous = 0
 		self.step_counter = 0
-		self.life_span = 1000  # -1 = no life span
+		self.life_span = 500  # -1 = no life span
 		self.step_grass_counter = 0
 		self.life_span_on_grass = 20
+		self.info = ''
 
 	def run(self):
 
@@ -214,7 +215,6 @@ class GameController(Event.Listener):
 		new_state = car.get_state()
 		reward = abs(car.velocity[0]) / car.max_front_velocity if car.is_on_road() else -1
 		done = not self.keepGoing
-		info = ''
 
 		self.step_counter += 1
 		if self.step_counter == self.life_span:
@@ -225,10 +225,11 @@ class GameController(Event.Listener):
 			if self.step_grass_counter == self.life_span_on_grass:
 				self.keepGoing = False
 
-		return new_state, reward, done, info
+		return new_state, reward, done, self.info
 
 	def notify(self, event):
 		if isinstance(event, Event.QuitEvent):
+			self.info = 'Quit'
 			self.keepGoing = False
 
 		elif isinstance(event, Event.ToggleDebugEvent):
