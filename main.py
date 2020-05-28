@@ -5,61 +5,66 @@ import matplotlib.pyplot as plt
 
 def main():
 
-	env = Env.Env('Taxi Agent', map_name='city2')
+	if input('Enter map editor (y/n) ? ') == 'y':
+		env = Env.Env('Taxi Agent')
+		env.run()
 
-	agent = Agent.Agent(alpha=0.0001, beta=0.001, input_dims=[env.get_number_inputs()], tau=0.001, n_actions=2,
-						fc1_dims=400, fc2_dims=300)
+	else:
+		env = Env.Env('Taxi Agent', map_name=input("Map name : "))
 
-	score_history = []
-	mean_history = []
-	np.random.seed(0)
-	info = ''
-	i = 0
+		agent = Agent.Agent(alpha=0.0001, beta=0.001, input_dims=[env.get_number_inputs()], tau=0.001, n_actions=2,
+							fc1_dims=400, fc2_dims=300)
 
-	n_games = int(input('Number of games : '))
-	display = input('Display (y/n) ? ') == 'y'
+		score_history = []
+		mean_history = []
+		np.random.seed(0)
+		info = ''
+		i = 0
 
-	if input('Load Agent (y/n) ? ') == 'y':
-		agent.load_models()
+		n_games = int(input('Number of games : '))
+		display = input('Display (y/n) ? ') == 'y'
 
-	while info != 'Quit' and i < n_games:
+		if input('Load Agent (y/n) ? ') == 'y':
+			agent.load_models()
 
-		obs = env.reset()
-		done = False
-		score = 0
+		while info != 'Quit' and i < n_games:
 
-		while not done:
-			# print('\n------------- State  -------------')
-			# print(obs)
-			action = agent.choose_action(obs)
-			# print('\n------------- Action -------------')
-			# print(action)
+			obs = env.reset()
+			done = False
+			score = 0
 
-			new_state, reward, done, info = env.step(action)
+			while not done:
+				# print('\n------------- State  -------------')
+				# print(obs)
+				action = agent.choose_action(obs)
+				# print('\n------------- Action -------------')
+				# print(action)
 
-			if display:
-				env.render()
+				new_state, reward, done, info = env.step(action)
 
-			agent.remember(obs, action, reward, new_state, done)
-			agent.learn()
+				if display:
+					env.render()
 
-			score += reward
-			obs = new_state
+				agent.remember(obs, action, reward, new_state, done)
+				agent.learn()
 
-		score_history.append(score)
-		mean = np.mean(score_history[-100:])
-		mean_history.append(mean)
-		print("episode ", i, 'score %.2f' % score, '100 game average %.2f' % mean)
-		i += 1
+				score += reward
+				obs = new_state
 
-	if input('Save Agent (y/n) ? ') == 'y':
-		agent.save_models()
+			score_history.append(score)
+			mean = np.mean(score_history[-100:])
+			mean_history.append(mean)
+			print("episode ", i, 'score %.2f' % score, '100 game average %.2f' % mean)
+			i += 1
 
-	print(score_history)
-	print(mean_history)
-	plt.plot(score_history)
-	plt.plot(mean_history)
-	plt.show()
+		if input('Save Agent (y/n) ? ') == 'y':
+			agent.save_models()
+
+		print(score_history)
+		print(mean_history)
+		plt.plot(score_history)
+		plt.plot(mean_history)
+		plt.show()
 
 
 if __name__ == "__main__":
