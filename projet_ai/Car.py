@@ -44,8 +44,10 @@ class Lidar(Event.Listener):
 		for i in range(len(self.matrix)):
 			first_of_line = Vector2(current)
 			for j in range(len(self.matrix[i])):
-				if self.map.is_point_on_road(current):
+				if self.map.is_point_on_path(current):
 					self.matrix[i][j] = 1
+				elif self.map.is_point_on_road(current):
+					self.matrix[i][j] = -1
 				else:
 					self.matrix[i][j] = 0
 

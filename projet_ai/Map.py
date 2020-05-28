@@ -263,6 +263,25 @@ class Map(Event.Listener):
 
 		return False
 
+	def is_point_on_path(self, point):
+		if self.path is None:
+			return False
+
+		for i in range(len(self.path)-1):
+			A = self.path[i]
+			B = self.path[i+1]
+
+			if Map.is_point_in_rectangle(point, Map.get_rect([A, B], Settings.ROAD_WIDTH)):
+				return True
+
+			if point.distance_to(A) <= Settings.ROAD_WIDTH/2:
+				return True
+
+			if point.distance_to(B) <= Settings.ROAD_WIDTH/2:
+				return True
+
+		return False
+
 	def save_map(self, name):
 		with open(name, 'w') as file:
 			for point in self.points:

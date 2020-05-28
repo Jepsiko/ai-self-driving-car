@@ -142,8 +142,10 @@ class GameView(Event.Listener):
 
 				if lidar.matrix[i][j] == 0:
 					pygame.draw.rect(self.screen, Settings.LIDAR_VIEW_GRASS, square)
-				else:
+				elif lidar.matrix[i][j] == -1:
 					pygame.draw.rect(self.screen, Settings.LIDAR_VIEW_ROAD, square)
+				else:
+					pygame.draw.rect(self.screen, Settings.LIDAR_VIEW_PATH, square)
 
 	def draw_lidar(self):
 		pos = self.character.position
