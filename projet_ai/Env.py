@@ -43,7 +43,7 @@ class Env:
 		return self.character.get_number_inputs()
 
 	def run(self):
-		self.gameView = Game.GameView(self.game, self.evManager, True)
+		self.gameView = Game.GameView(self.game, self.gameController, self.evManager, True)
 		self.gameController.run()
 
 	def step(self, action):
@@ -51,5 +51,5 @@ class Env:
 
 	def render(self):
 		if self.gameView is None:
-			self.gameView = Game.GameView(self.game, self.evManager)
+			self.gameView = Game.GameView(self.game, self.gameController, self.evManager)
 		self.gameView.render()

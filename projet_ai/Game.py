@@ -6,7 +6,7 @@ from pygame import Vector2
 
 class GameView(Event.Listener):
 
-	def __init__(self, game, evManager, tick_render=False):
+	def __init__(self, game, gameController, evManager, tick_render=False):
 		super().__init__(evManager)
 
 		# Create the screen
@@ -18,8 +18,12 @@ class GameView(Event.Listener):
 		icon = pygame.image.load("taxi.png")
 		pygame.display.set_icon(icon)
 
+		pygame.font.init()
+		self.font = pygame.font.SysFont('Consolas', 14, bold=True)
+
 		self.tick_render = tick_render
 		self.game = game
+		self.gameController = gameController
 		self.character = None
 
 	def notify(self, event):
@@ -110,7 +114,9 @@ class GameView(Event.Listener):
 			if Settings.DEBUG:
 				self.draw_lidar()
 				self.draw_lidar_points()
+
 			self.draw_view((10, 10))
+			self.draw_info((120, 20))
 
 	def draw_car(self):
 		car = self.character
@@ -146,6 +152,21 @@ class GameView(Event.Listener):
 					pygame.draw.rect(self.screen, Settings.LIDAR_VIEW_ROAD, square)
 				else:
 					pygame.draw.rect(self.screen, Settings.LIDAR_VIEW_PATH, square)
+
+	def draw_info(self, pos):
+		if self.gameController.reward is not None:
+			text = 'Q(a,s)       = ' + str(round(self.gameController.reward, 3))
+			textsurface = self.font.render(text, True, (0, 0, 0))
+			self.screen.blit(textsurface, pos)
+
+		if self.gameController.action is not None:
+			text = 'Acceleration = ' + str(round(self.gameController.action[0], 3))
+			textsurface = self.font.render(text, True, (0, 0, 0))
+			self.screen.blit(textsurface, (pos[0], pos[1] + 20))
+
+			text = 'Steering     = ' + str(round(self.gameController.action[1], 3))
+			textsurface = self.font.render(text, True, (0, 0, 0))
+			self.screen.blit(textsurface, (pos[0], pos[1] + 40))
 
 	def draw_lidar(self):
 		pos = self.character.position
@@ -212,6 +233,8 @@ class GameController(Event.Listener):
 		self.step_outside_path_counter = 0
 		self.life_span_outside_path = 20
 		self.info = ''
+		self.action = None
+		self.reward = None
 
 	def run(self):
 
@@ -225,6 +248,7 @@ class GameController(Event.Listener):
 		pygame.quit()
 
 	def step(self, action):
+		self.action = action
 		self.evManager.post(Event.MovePlayerEvent(Vector2(action[0], action[1])))
 
 		now = pygame.time.get_ticks()
@@ -237,9 +261,9 @@ class GameController(Event.Listener):
 
 		new_state = car.get_state()
 		if car.is_on_path():
-			reward = car.velocity[0] / car.max_front_velocity
+			self.reward = car.velocity[0] / car.max_front_velocity
 		else:
-			reward = -1
+			self.reward = -1
 		done = not self.keepGoing
 
 		self.step_counter += 1
@@ -251,7 +275,7 @@ class GameController(Event.Listener):
 			if self.step_outside_path_counter == self.life_span_outside_path:
 				self.keepGoing = False
 
-		return new_state, reward, done, self.info
+		return new_state, self.reward, done, self.info
 
 	def notify(self, event):
 		if isinstance(event, Event.QuitEvent):
