@@ -13,10 +13,7 @@ class Env:
 		self.evManager = Event.EventManager()
 
 		if self.name == 'Taxi Agent':
-			self.player = Player.Player(self.use_ai, self.evManager)
-
-			#if not self.use_ai:
-			self.inputController = Player.InputController(self.evManager)
+			self.player = Player.Player(self.evManager)
 
 			self.character = Car.Car(Settings.CAR_IMAGE, self.evManager)
 			self.map = Map.Map(self.evManager)

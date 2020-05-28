@@ -1,13 +1,6 @@
-from pygame.math import Vector2
-import math
-
-
-def get_point_at_vector(pos, magnitude, angle):
-	return Vector2(pos.x + magnitude * math.cos(angle), pos.y + magnitude * math.sin(angle))
-
 
 def ccw(A, B, C):
-	return (C[1] - A[1]) * (B[0] - A[0]) > (B[1] - A[1]) * (C[0] - A[0])
+	return (C.y - A.y) * (B.x - A.x) > (B.y - A.y) * (C.x - A.x)
 
 
 def is_line_crossing(line1, line2):

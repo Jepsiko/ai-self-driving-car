@@ -10,6 +10,7 @@ MIN_DIST_POINTS = 150
 # Level Design
 GRASS_COLOR = (0, 100, 0)
 ROAD_COLOR = (80, 80, 80)
+PATH_COLOR = (100, 100, 100)
 ROAD_WIDTH = 50
 CAR_IMAGE = 'car.png'
 
@@ -32,12 +33,16 @@ LIDAR_POINTS_COLOR = (0, 255, 0)
 
 # Keyboard Commands
 KEY_QUIT = pygame.K_ESCAPE          # ESC
+
 KEY_POINT_EDITING = pygame.K_p      # P
 KEY_LINE_EDITING = pygame.K_l       # L
 KEY_PLAY_MODE = pygame.K_f          # F
+
 KEY_TOGGLE_DEBUG = pygame.K_d       # D
+
 KEY_SAVE_MAP = pygame.K_s       	# S
 KEY_LOAD_MAP = pygame.K_x       	# X
+
 KEY_MOVE_FRONT = pygame.K_UP        # UP
 KEY_MOVE_BACK = pygame.K_DOWN       # DOWN
 KEY_MOVE_LEFT = pygame.K_LEFT       # LEFT

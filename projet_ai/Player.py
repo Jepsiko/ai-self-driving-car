@@ -78,6 +78,6 @@ class InputController(Event.Listener):
 
 class Player(Event.Listener):
 
-	def __init__(self, use_ai, evManager):
+	def __init__(self, evManager):
 		super().__init__(evManager)
-		self.use_ai = use_ai
+		self.inputController = InputController(self.evManager)

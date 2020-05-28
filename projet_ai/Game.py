@@ -1,8 +1,7 @@
-from projet_ai import Event, Settings, Tools
+from projet_ai import Event, Settings
 import pygame
 import math
 from pygame import Vector2
-import numpy as np
 
 
 class GameView(Event.Listener):
@@ -52,8 +51,8 @@ class GameView(Event.Listener):
 			transparent_circle = pygame.Surface((Settings.WIDTH, Settings.HEIGHT), pygame.SRCALPHA)
 			pygame.draw.circle(transparent_circle, (150, 150, 150, 50), (radius * 2, radius * 2), radius - 2)
 			pygame.draw.circle(transparent_circle, (200, 200, 200, 50), (radius * 2, radius * 2), radius, 2)
-			self.screen.blit(transparent_circle, (position[0] - radius * 2, position[1] - radius * 2))
-			pygame.draw.circle(self.screen, (100, 150, 255), position, 10)
+			self.screen.blit(transparent_circle, (position.x - radius * 2, position.y - radius * 2))
+			pygame.draw.circle(self.screen, (100, 150, 255), position.to_coord(), 10)
 
 		mouse = pygame.mouse.get_pos()
 		if self.game.map.is_space_available(mouse):
@@ -69,8 +68,8 @@ class GameView(Event.Listener):
 			transparent_circle = pygame.Surface((Settings.WIDTH, Settings.HEIGHT), pygame.SRCALPHA)
 			pygame.draw.circle(transparent_circle, (150, 150, 150, 50), (radius, radius), radius - 2)
 			pygame.draw.circle(transparent_circle, (200, 200, 200, 50), (radius, radius), radius, 2)
-			self.screen.blit(transparent_circle, (position[0] - radius, position[1] - radius))
-			pygame.draw.circle(self.screen, Settings.ROAD_COLOR, position, 10)
+			self.screen.blit(transparent_circle, (position.x - radius, position.y - radius))
+			pygame.draw.circle(self.screen, Settings.ROAD_COLOR, position.to_coord(), 10)
 
 		for line in self.game.map.lines:
 			self.draw_rect(line, Settings.ROAD_COLOR, 20)
@@ -90,10 +89,19 @@ class GameView(Event.Listener):
 	def play_mode(self):
 		# Draw the roads
 		for position in self.game.map.points:
-			pygame.draw.circle(self.screen, Settings.ROAD_COLOR, position, int(Settings.ROAD_WIDTH / 2))
+			pygame.draw.circle(self.screen, Settings.ROAD_COLOR, position.to_coord(), int(Settings.ROAD_WIDTH / 2))
 
 		for line in self.game.map.lines:
 			self.draw_rect(line, Settings.ROAD_COLOR, Settings.ROAD_WIDTH)
+
+		# Draw the path
+		path = self.game.map.path
+		if path is not None:
+			for i in range(len(path)-1):
+				pygame.draw.circle(self.screen, Settings.PATH_COLOR, path[i].to_coord(), int(Settings.ROAD_WIDTH / 2))
+				self.draw_rect([path[i], path[i+1]], Settings.PATH_COLOR, Settings.ROAD_WIDTH)
+
+			pygame.draw.circle(self.screen, Settings.PATH_COLOR, path[-1].to_coord(), int(Settings.ROAD_WIDTH / 2))
 
 		# Draw the taxi
 		if self.character is not None:
@@ -139,16 +147,25 @@ class GameView(Event.Listener):
 
 	def draw_lidar(self):
 		pos = self.character.position
-		angle = -math.radians(self.character.angle)
+		angle = -self.character.angle
 		lidar = self.character.lidar
 
-		front = Tools.get_point_at_vector(pos, lidar.length - lidar.back_length, angle)
-		front_right = Tools.get_point_at_vector(front, lidar.width / 2, math.pi / 2 + angle)
-		front_left = Tools.get_point_at_vector(front, lidar.width / 2, angle - math.pi / 2)
+		vec = Vector2()
+		vec.from_polar((lidar.length - lidar.back_length, angle))
+		front = pos + vec
 
-		back = Tools.get_point_at_vector(pos, lidar.back_length, math.pi + angle)
-		back_right = Tools.get_point_at_vector(back, lidar.width / 2, math.pi / 2 + angle)
-		back_left = Tools.get_point_at_vector(back, lidar.width / 2, angle - math.pi / 2)
+		vec.from_polar((lidar.width / 2, angle + 90))
+		front_right = front + vec
+		vec.from_polar((lidar.width / 2, angle - 90))
+		front_left = front + vec
+
+		vec.from_polar((lidar.back_length, angle + 180))
+		back = pos + vec
+
+		vec.from_polar((lidar.width / 2, angle + 90))
+		back_right = back + vec
+		vec.from_polar((lidar.width / 2, angle - 90))
+		back_left = back + vec
 
 		lidar_corners = [front_left, back_left, back_right, front_right]
 		pygame.draw.lines(self.screen, Settings.LIDAR_BOX_COLOR, True, lidar_corners)
@@ -277,27 +294,25 @@ class Game(Event.Listener):
 		self.map = map_
 		self.mode = mode
 
-		print('Press P to edit points, L to edit lines, F when you\'ve finished, D for debug and ESC to quit')
-
 	def start(self):
-		first_point = Vector2(self.map.get_point(0))
-		next_point = Vector2(self.map.get_neighbours(0)[0])
-		angle = math.degrees(math.atan2(first_point.y - next_point.y, first_point.x - next_point.x))
+		self.evManager.post(Event.AStarEvent())
+
+		start = self.map.path[0]
+		next_ = self.map.path[1]
+		angle = math.degrees(math.atan2(start.y - next_.y, start.x - next_.x))
 		if angle < 0:
 			angle += 360
-		self.character.reset(first_point, 180 - angle)
+		self.character.reset(start, 180 - angle)
 
 	def notify(self, event):
 		if isinstance(event, Event.LoadMapEvent):
 			self.map.load_map(event.map_name)
 			if self.mode == Mode.PLAY_MODE:
-				self.map.build()
 				self.start()
 
 		elif isinstance(event, Event.ChangeModeEvent):
 			self.mode = event.mode
 			if self.mode == Mode.PLAY_MODE:
-				self.map.build()
 				self.start()
 
 		elif isinstance(event, Event.CreationEvent):

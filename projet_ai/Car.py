@@ -3,6 +3,7 @@ from pygame import Vector2
 import math
 import numpy as np
 from projet_ai import Event
+import copy
 
 
 class Lidar(Event.Listener):
@@ -98,7 +99,7 @@ class Car(Event.Listener):
 
 		elif isinstance(event, Event.TickEvent):
 			if (self.direction.x > 0 and self.velocity.x < 0) or (self.direction.x < 0 and self.velocity.x > 0):
-				self.acceleration = self.brake_deceleration
+				self.acceleration = -math.copysign(self.brake_deceleration, self.velocity.x)
 			elif self.direction.x != 0:
 				self.acceleration = self.max_acceleration * self.direction.x
 			else:
@@ -122,7 +123,11 @@ class Car(Event.Listener):
 			self.position += self.velocity.rotate(-self.angle) * event.delta
 			self.angle += math.degrees(velocity_angle) * event.delta
 
+			self.direction = Vector2(0, 0)
 			self.evManager.post(Event.CarUpdatedEvent(self))
+
+			if self.as_arrived():
+				self.evManager.post(Event.AStarEvent())
 
 		elif isinstance(event, Event.MapUpdatedEvent):
 			self.map = event.map
@@ -146,7 +151,7 @@ class Car(Event.Listener):
 		return state
 
 	def reset(self, position, angle):
-		self.position = position
+		self.position = copy.deepcopy(position)
 		self.angle = angle
 
 		self.direction = Vector2(0, 0)
@@ -194,5 +199,14 @@ class Car(Event.Listener):
 
 		for point in self.get_hitbox():
 			if self.map.is_point_on_road(point):
+				return False
+		return True
+
+	def as_arrived(self):
+		if self.map is None:
+			return False
+
+		for point in self.get_hitbox():
+			if not self.map.is_point_on_end(point):
 				return False
 		return True

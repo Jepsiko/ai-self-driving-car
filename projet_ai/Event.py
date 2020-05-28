@@ -83,6 +83,12 @@ class LoadMapEvent(Event):
         self.map_name = map_name
 
 
+class AStarEvent(Event):
+    def __init__(self):
+        super().__init__()
+        self.name = 'A Star Event'
+
+
 class EventManager:
     """this object is responsible for coordinating most communication
     between the Model, View, and Controller."""
