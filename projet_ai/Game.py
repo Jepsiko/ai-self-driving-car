@@ -236,7 +236,13 @@ class GameController(Event.Listener):
 		car = self.game.character
 
 		new_state = car.get_state()
-		reward = abs(car.velocity[0]) / car.max_front_velocity if car.is_on_path() else -1
+		if car.is_on_path():
+			if car.velocity[0] > 0:
+				reward = car.velocity[0] / car.max_front_velocity
+			else:
+				reward = 0
+		else:
+			reward = -1
 		done = not self.keepGoing
 
 		self.step_counter += 1
