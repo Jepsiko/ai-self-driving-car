@@ -25,7 +25,7 @@ def main():
 		display = input('Display (y/n) ? ') == 'y'
 
 		if input('Load Agent (y/n) ? ') == 'y':
-			agent.load_models()
+			agent.load_models(input('Agent name : '))
 
 		while info != 'Quit' and i < n_games:
 
@@ -58,7 +58,7 @@ def main():
 			i += 1
 
 		if input('Save Agent (y/n) ? ') == 'y':
-			agent.save_models()
+			agent.save_models(input('Agent name : '))
 
 		print(score_history)
 		print(mean_history)

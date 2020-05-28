@@ -61,12 +61,9 @@ class ReplayBuffer:
 		return states, actions, rewards, new_states, dones
 
 
-# random_uniform = tf.initializers.random_uniform
-
-
 class Actor(nn.Module):
 	def __init__(self, alpha, input_dims, fc1_dims, fc2_dims, n_actions, name,
-				 chkpt_dir='C:\\Users\\bibou\\Desktop\\agent'):
+				 chkpt_dir='C:\\Users\\bibou\\Desktop\\'):
 		super(Actor, self).__init__()
 		self.input_dims = input_dims
 		self.fc1_dims = fc1_dims
@@ -74,16 +71,12 @@ class Actor(nn.Module):
 		self.n_actions = n_actions
 		self.name = name
 		self.checkpoint_dir = chkpt_dir
-		self.checkpoint_file = os.path.join(self.checkpoint_dir, name + '_ddpg')
 
 		self.fc1 = nn.Linear(*self.input_dims, self.fc1_dims)
 		self.fc2 = nn.Linear(self.fc1_dims, self.fc2_dims)
 
 		self.bn1 = nn.LayerNorm(self.fc1_dims)
 		self.bn2 = nn.LayerNorm(self.fc2_dims)
-
-		# self.bn1 = nn.BatchNorm1d(self.fc1_dims)
-		# self.bn2 = nn.BatchNorm1d(self.fc2_dims)
 
 		self.mu = nn.Linear(self.fc2_dims, self.n_actions)
 
@@ -115,23 +108,34 @@ class Actor(nn.Module):
 
 		return x
 
-	def save_checkpoint(self):
+	def save_checkpoint(self, name):
 		print('... saving checkpoint ...')
-		T.save(self.state_dict(), self.checkpoint_file)
+		checkpoint_dir = self.checkpoint_dir + name
+		if not os.path.exists(checkpoint_dir):
+			os.makedirs(checkpoint_dir)
+		checkpoint_file = os.path.join(checkpoint_dir, self.name + '_ddpg')
+		T.save(self.state_dict(), checkpoint_file)
 
-	def load_checkpoint(self):
+	def load_checkpoint(self, name):
 		print('... loading checkpoint ...')
-		self.load_state_dict(T.load(self.checkpoint_file))
+		checkpoint_dir = self.checkpoint_dir + name
+		if not os.path.exists(checkpoint_dir):
+			os.makedirs(checkpoint_dir)
+		checkpoint_file = os.path.join(checkpoint_dir, self.name + '_ddpg')
+		self.load_state_dict(T.load(checkpoint_file))
 
-	def save_best(self):
+	def save_best(self, name):
 		print('... saving best checkpoint ...')
-		checkpoint_file = os.path.join(self.checkpoint_dir, self.name + '_best')
+		checkpoint_dir = self.checkpoint_dir + name
+		if not os.path.exists(checkpoint_dir):
+			os.makedirs(checkpoint_dir)
+		checkpoint_file = os.path.join(checkpoint_dir, self.name + '_best')
 		T.save(self.state_dict(), checkpoint_file)
 
 
 class Critic(nn.Module):
 	def __init__(self, beta, input_dims, fc1_dims, fc2_dims, n_actions, name,
-				 chkpt_dir='C:\\Users\\bibou\\Desktop\\agent'):
+				 chkpt_dir='C:\\Users\\bibou\\Desktop\\'):
 		super(Critic, self).__init__()
 		self.input_dims = input_dims
 		self.fc1_dims = fc1_dims
@@ -139,15 +143,12 @@ class Critic(nn.Module):
 		self.n_actions = n_actions
 		self.name = name
 		self.checkpoint_dir = chkpt_dir
-		self.checkpoint_file = os.path.join(self.checkpoint_dir, name + '_ddpg')
 
 		self.fc1 = nn.Linear(*self.input_dims, self.fc1_dims)
 		self.fc2 = nn.Linear(self.fc1_dims, self.fc2_dims)
 
 		self.bn1 = nn.LayerNorm(self.fc1_dims)
 		self.bn2 = nn.LayerNorm(self.fc2_dims)
-		# self.bn1 = nn.BatchNorm1d(self.fc1_dims)
-		# self.bn2 = nn.BatchNorm1d(self.fc2_dims)
 
 		self.action_value = nn.Linear(self.n_actions, self.fc2_dims)
 
@@ -181,26 +182,34 @@ class Critic(nn.Module):
 		state_value = F.relu(state_value)
 		state_value = self.fc2(state_value)
 		state_value = self.bn2(state_value)
-		# state_value = F.relu(state_value)
-		# action_value = F.relu(self.action_value(action))
 		action_value = self.action_value(action)
 		state_action_value = F.relu(T.add(state_value, action_value))
-		# state_action_value = T.add(state_value, action_value)
 		state_action_value = self.q(state_action_value)
 
 		return state_action_value
 
-	def save_checkpoint(self):
+	def save_checkpoint(self, name):
 		print('... saving checkpoint ...')
-		T.save(self.state_dict(), self.checkpoint_file)
+		checkpoint_dir = self.checkpoint_dir + name
+		if not os.path.exists(checkpoint_dir):
+			os.makedirs(checkpoint_dir)
+		checkpoint_file = os.path.join(checkpoint_dir, self.name + '_ddpg')
+		T.save(self.state_dict(), checkpoint_file)
 
-	def load_checkpoint(self):
+	def load_checkpoint(self, name):
 		print('... loading checkpoint ...')
-		self.load_state_dict(T.load(self.checkpoint_file))
+		checkpoint_dir = self.checkpoint_dir + name
+		if not os.path.exists(checkpoint_dir):
+			os.makedirs(checkpoint_dir)
+		checkpoint_file = os.path.join(checkpoint_dir, self.name + '_ddpg')
+		self.load_state_dict(T.load(checkpoint_file))
 
-	def save_best(self):
+	def save_best(self, name):
 		print('... saving best checkpoint ...')
-		checkpoint_file = os.path.join(self.checkpoint_dir, self.name + '_best')
+		checkpoint_dir = self.checkpoint_dir + name
+		if not os.path.exists(checkpoint_dir):
+			os.makedirs(checkpoint_dir)
+		checkpoint_file = os.path.join(checkpoint_dir, self.name + '_best')
 		T.save(self.state_dict(), checkpoint_file)
 
 
@@ -245,17 +254,17 @@ class Agent:
 	def remember(self, state, action, reward, state_, done):
 		self.memory.store_transition(state, action, reward, state_, done)
 
-	def save_models(self):
-		self.actor.save_checkpoint()
-		self.target_actor.save_checkpoint()
-		self.critic.save_checkpoint()
-		self.target_critic.save_checkpoint()
+	def save_models(self, name):
+		self.actor.save_checkpoint(name)
+		self.target_actor.save_checkpoint(name)
+		self.critic.save_checkpoint(name)
+		self.target_critic.save_checkpoint(name)
 
-	def load_models(self):
-		self.actor.load_checkpoint()
-		self.target_actor.load_checkpoint()
-		self.critic.load_checkpoint()
-		self.target_critic.load_checkpoint()
+	def load_models(self, name):
+		self.actor.load_checkpoint(name)
+		self.target_actor.load_checkpoint(name)
+		self.critic.load_checkpoint(name)
+		self.target_critic.load_checkpoint(name)
 
 	def learn(self):
 		if self.memory.mem_cntr < self.batch_size:
@@ -317,5 +326,3 @@ class Agent:
 
 		self.target_critic.load_state_dict(critic_state_dict)
 		self.target_actor.load_state_dict(actor_state_dict)
-		# self.target_critic.load_state_dict(critic_state_dict, strict=False)
-		# self.target_actor.load_state_dict(actor_state_dict, strict=False)
