@@ -3,8 +3,16 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def main():
+def plot_learning_curve(x, scores, figure_file):
+	running_avg = np.zeros(len(scores))
+	for i in range(len(running_avg)):
+		running_avg[i] = np.mean(scores[max(0, i - 100):(i + 1)])
+	plt.plot(x, running_avg)
+	plt.title('Running average of previous 100 scores')
+	plt.savefig(figure_file, format='eps')
 
+
+def main():
 	if input('Enter map editor (y/n) ? ') == 'y':
 		env = Env.Env('Taxi Agent')
 		env.run()
@@ -60,11 +68,10 @@ def main():
 		if input('Save Agent (y/n) ? ') == 'y':
 			agent.save_models(input('Agent name : '))
 
-		print(score_history)
-		print(mean_history)
-		plt.plot(score_history)
-		plt.plot(mean_history)
-		plt.show()
+		for score in score_history:
+			print(score)
+		x = [i + 1 for i in range(n_games)]
+		plot_learning_curve(x, score_history, input('Plot file name (.eps) : '))
 
 
 if __name__ == "__main__":
