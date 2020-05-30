@@ -155,7 +155,7 @@ class GameView(Event.Listener):
 
 	def draw_info(self, pos):
 		if self.gameController.reward is not None:
-			text = 'Q(a,s)       = ' + str(round(self.gameController.reward, 3))
+			text = 'Reward       = ' + str(round(self.gameController.reward, 3))
 			textsurface = self.font.render(text, True, (0, 0, 0))
 			self.screen.blit(textsurface, pos)
 
