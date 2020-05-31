@@ -44,9 +44,12 @@ class Env:
 
 	def run(self):
 		self.gameView = Game.GameView(self.game, self.gameController, self.evManager, True)
+		self.gameController.start()
 		self.gameController.run()
 
 	def step(self, action):
+		if not self.gameController.as_started():
+			self.gameController.start()
 		return self.gameController.step(action)
 
 	def render(self):

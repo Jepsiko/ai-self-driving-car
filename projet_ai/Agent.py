@@ -1,8 +1,5 @@
 import os
 import numpy as np
-# noinspection PyUnresolvedReferences
-# import tensorflow.compat.v1 as tf
-# tf.disable_v2_behavior()
 import torch as T
 import torch.nn as nn
 import torch.nn.functional as F
@@ -63,7 +60,7 @@ class ReplayBuffer:
 
 class Actor(nn.Module):
 	def __init__(self, alpha, input_dims, fc1_dims, fc2_dims, n_actions, name,
-				 chkpt_dir='C:\\Users\\thiba\\Desktop\\'):
+				 chkpt_dir='C:\\Users\\bibou\\Desktop\\'):
 		super(Actor, self).__init__()
 		self.input_dims = input_dims
 		self.fc1_dims = fc1_dims
@@ -122,7 +119,7 @@ class Actor(nn.Module):
 		if not os.path.exists(checkpoint_dir):
 			os.makedirs(checkpoint_dir)
 		checkpoint_file = os.path.join(checkpoint_dir, self.name + '_ddpg')
-		self.load_state_dict(T.load(checkpoint_file))
+		self.load_state_dict(T.load(checkpoint_file)) #, map_location=T.device('cpu')
 
 	def save_best(self, name):
 		print('... saving best checkpoint ...')
@@ -135,7 +132,7 @@ class Actor(nn.Module):
 
 class Critic(nn.Module):
 	def __init__(self, beta, input_dims, fc1_dims, fc2_dims, n_actions, name,
-				 chkpt_dir='C:\\Users\\thiba\\Desktop\\'):
+				 chkpt_dir='C:\\Users\\bibou\\Desktop\\'):
 		super(Critic, self).__init__()
 		self.input_dims = input_dims
 		self.fc1_dims = fc1_dims
@@ -202,7 +199,7 @@ class Critic(nn.Module):
 		if not os.path.exists(checkpoint_dir):
 			os.makedirs(checkpoint_dir)
 		checkpoint_file = os.path.join(checkpoint_dir, self.name + '_ddpg')
-		self.load_state_dict(T.load(checkpoint_file))
+		self.load_state_dict(T.load(checkpoint_file)) #, map_location=T.device('cpu')
 
 	def save_best(self, name):
 		print('... saving best checkpoint ...')

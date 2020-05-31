@@ -155,22 +155,25 @@ class GameView(Event.Listener):
 
 	def draw_info(self, pos):
 		if self.gameController.reward is not None:
-			text = 'Reward       = ' + str(round(self.gameController.reward, 3))
+			space = ' ' if self.gameController.reward >= 0 else ''
+			text = 'Reward       = ' + space + str(round(self.gameController.reward, 3))
 			textsurface = self.font.render(text, True, (0, 0, 0))
 			self.screen.blit(textsurface, pos)
 
-			text = 'Score        = ' + str(round(self.gameController.score, 3))
+			space = ' ' if self.gameController.score >= 0 else ''
+			text = 'Score        = ' + space + str(round(self.gameController.score, 3))
 			textsurface = self.font.render(text, True, (0, 0, 0))
 			self.screen.blit(textsurface, (pos[0], pos[1] + 20))
 
-		if self.gameController.action is not None:
-			text = 'Acceleration = ' + str(round(self.gameController.action[0], 3))
-			textsurface = self.font.render(text, True, (0, 0, 0))
-			self.screen.blit(textsurface, (pos[0], pos[1] + 40))
+		space = ' ' if self.game.character.acceleration >= 0 else ''
+		text = 'Acceleration = ' + space + str(round(self.game.character.acceleration, 3))
+		textsurface = self.font.render(text, True, (0, 0, 0))
+		self.screen.blit(textsurface, (pos[0], pos[1] + 40))
 
-			text = 'Steering     = ' + str(round(self.gameController.action[1], 3))
-			textsurface = self.font.render(text, True, (0, 0, 0))
-			self.screen.blit(textsurface, (pos[0], pos[1] + 60))
+		space = ' ' if self.game.character.steering >= 0 else ''
+		text = 'Steering     = ' + space + str(round(self.game.character.steering, 3))
+		textsurface = self.font.render(text, True, (0, 0, 0))
+		self.screen.blit(textsurface, (pos[0], pos[1] + 60))
 
 	def draw_lidar(self):
 		pos = self.character.position
@@ -233,13 +236,18 @@ class GameController(Event.Listener):
 		self.keepGoing = True
 		self.previous = 0
 		self.step_counter = 0
-		self.life_span = 500  # -1 = no life span
+		self.life_span = -1  # -1 = no dying from life span
 		self.step_outside_path_counter = 0
-		self.life_span_outside_path = 20
+		self.life_span_outside_path = 1  # -1 = no dying from life span
 		self.info = ''
-		self.action = None
 		self.reward = None
 		self.score = 0
+
+	def as_started(self):
+		return self.previous != 0
+
+	def start(self):
+		self.previous = pygame.time.get_ticks()
 
 	def run(self):
 
@@ -253,7 +261,6 @@ class GameController(Event.Listener):
 		pygame.quit()
 
 	def step(self, action):
-		self.action = action
 		self.evManager.post(Event.MovePlayerEvent(Vector2(action[0], action[1])))
 
 		now = pygame.time.get_ticks()
@@ -268,7 +275,7 @@ class GameController(Event.Listener):
 		if car.is_on_path():
 			self.reward = car.velocity[0] / car.max_front_velocity
 		else:
-			self.reward = -1
+			self.reward = -1.0
 		self.score += self.reward
 		done = not self.keepGoing
 
@@ -331,7 +338,6 @@ class Game(Event.Listener):
 		self.mode = mode
 
 	def start(self):
-		# self.evManager.post(Event.AStarEvent())
 
 		self.map.create_path()
 		start = self.map.path[0]

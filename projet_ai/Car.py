@@ -100,6 +100,7 @@ class Car(Event.Listener):
 			self.direction = event.direction
 
 		elif isinstance(event, Event.TickEvent):
+
 			if (self.direction.x > 0 and self.velocity.x < 0) or (self.direction.x < 0 and self.velocity.x > 0):
 				self.acceleration = -math.copysign(self.brake_deceleration, self.velocity.x)
 			elif self.direction.x != 0:
